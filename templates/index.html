@@ -71,19 +71,23 @@
 								<table class="table table-dark">
 									<thead>
 										<tr>
-										  <th scope="col">#</th>
-										  <th scope="col">Title</th>
-										  <th scope="col">Artists</th>
-										  <th scope="col">Album</th>
+										    <th scope="col">#</th>
+											<th scope="col"></th>
+										    <th scope="col">Title</th>
+<!--										  <th scope="col">Artists</th>-->
+										    <th scope="col">Album</th>
 										</tr>
 									</thead>
 									<tbody>
 										{% for song in songs %}
 										<tr>
-										  <th scope="row">{{ loop.index }}</th>
-										  <td>{{ song.name }}</td>
-										  <td>{% for artist in song.artist %}{{ artist.name }}, {% endfor %}</td>
-										  <td>{{ song.album.name }}</td>
+										    <th scope="row">{{ loop.index }}</th>
+											<td>
+												<img src="{{ song['album']['images'][2]['url'] }}">
+											</td>
+										    <td>{{ song.name }}</td>
+<!--										  <td>{% for artist in song.artist %}{{ artist.name }}{% endfor %}</td>-->
+										    <td>{{ song.album.name }}</td>
 										</tr>
 										{% endfor %}
 

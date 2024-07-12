@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -35,7 +36,6 @@ def home():
         for playlist in current_playlists:
             # print(playlist)
             if "daylist" in playlist['name']:
-                print(playlist)
                 daylist_playlist_id = playlist['id']
                 description = playlist['description']
                 daylist_name = playlist['name']
@@ -45,6 +45,10 @@ def home():
         if not daylist_playlist_id:
             return 'Daylist not found'
 
+        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
+        # anchor_words = [word for href, word in anchor_words]
+        # hrefs = [href for href, word in anchor_words]
+        print(anchor_words)
         current_daylist = sp.playlist_items(daylist_playlist_id)
 
         song_uris = []
@@ -52,6 +56,7 @@ def home():
             song_uris.append(song['track']['uri'])
 
         songs = []
+
         for song in current_daylist['items']:
             songs.append(song['track'])
 
@@ -59,7 +64,8 @@ def home():
                                daylist_name=daylist_name,
                                description=description,
                                image_url=daylist_image_url,
-                               songs=songs)
+                               songs=songs,
+                               )
 
 
 if __name__ == "__main__":
