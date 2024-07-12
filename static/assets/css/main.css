@@ -8,6 +8,36 @@ a {
     color: white !important;
 }
 
+nav ul li {
+    width: 200px;
+    padding: 3px;
+    text-align: center;
+    position: relative;
+}
+
+nav ul li.middle {
+    background-color: #a0c4ff;
+}
+
+nav ul li.middle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    background-color: black;
+    transform: translateX(-50%);
+}
+
+nav ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    background-color: black;
+    transform: translateX(-50%);
+}
 
 /*
 	Dimension by HTML5 UP
@@ -1329,6 +1359,7 @@ input, select, textarea {
 			display: -webkit-flex;
 			display: -ms-flex;
 			display: flex;
+			position: relative;
 			margin-bottom: 0;
 			list-style: none;
 			padding-left: 0;
@@ -1339,6 +1370,7 @@ input, select, textarea {
 			#header nav ul li {
 				padding-left: 0;
 				border-left: solid 1px #ffffff;
+				max-width: 10rem;
 			}
 
 				#header nav ul li:first-child {
@@ -1346,10 +1378,10 @@ input, select, textarea {
 				}
 
 				#header nav ul li a {
-					display: block;
-					min-width: 7.5rem;
+					display: flex;
 					height: 2.75rem;
-
+					justify-content: center;
+                    align-items: center;
 					padding: 5px 1.25rem 0 1.45rem;
 					text-transform: uppercase;
 					letter-spacing: 0.2rem;

@@ -46,9 +46,8 @@ def home():
             return 'Daylist not found'
 
         anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
-        # anchor_words = [word for href, word in anchor_words]
+        # linked_descriptive_words = [word for href, word in anchor_words]
         # hrefs = [href for href, word in anchor_words]
-        print(anchor_words)
         current_daylist = sp.playlist_items(daylist_playlist_id)
 
         song_uris = []
@@ -65,6 +64,7 @@ def home():
                                description=description,
                                image_url=daylist_image_url,
                                songs=songs,
+                               anchor_words=anchor_words,
                                )
 
 

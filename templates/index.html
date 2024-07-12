@@ -49,14 +49,9 @@
 						<nav>
 							<ul>
 								<li><a href="#show-daylist">Show daylist</a></li>
-								<li><a href="#work">Coffee House</a></li>
-								<li><a href="#about">Instrumental Stoner Rock</a></li>
-								<li><a href="#contact">Dark Jazz</a></li>
-								<li><a href="#contact">Cinematic Orchestra</a></li>
-								<li><a href="#contact">Electro Jazz</a></li>
-								<li><a href="#contact">Downbeat</a></li>
-								<li><a href="#contact">Instrumental Hip Hop</a></li>
-								<!--<li><a href="#elements">Elements</a></li>-->
+								{% for href, word in anchor_words %}
+								<li><a href="#">{{ word }}</a></li>
+								{% endfor %}
 							</ul>
 						</nav>
 					</header>
