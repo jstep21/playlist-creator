@@ -4,6 +4,7 @@
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
+
 <html>
 	<head>
 		<title>Dimension by HTML5 UP</title>
@@ -25,7 +26,37 @@
 				background-repeat: no-repeat;
 				z-index: 1;
 			}
+
+
+			p.song {
+				cursor: pointer;
+				color: blue;
+				text-decoration: underline;
+			}
+			p.song:hover {
+				color: darkblue;
+			}
 		</style>
+		<script>
+			function playSong(songUri) {
+				fetch('/play', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ song_uri: songUri,
+											device_id: 'aacad957d7badc6aa450faed3b2674f750f2437f'})
+				})
+				.then(response => response.json())
+				.then(data => {
+					if(data.success) {
+						console.log('Song is playing');
+					} else {
+						console.log('Error playing song');
+					}
+				});
+			}
+		</script>
 		<link rel="stylesheet" href="static/assets/css/main.css" />
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 		<noscript><link rel="stylesheet" href="static/assets/css/noscript.css" /></noscript>
@@ -50,7 +81,7 @@
 							<ul>
 								<li><a href="#show-daylist">Show daylist</a></li>
 								{% for href, word in anchor_words %}
-								<li><a href="#">{{ word }}</a></li>
+								<li><a href="#{{ loop.index }}">{{ word }}</a></li>
 								{% endfor %}
 							</ul>
 						</nav>
@@ -80,7 +111,18 @@
 											<td>
 												<img src="{{ song['album']['images'][2]['url'] }}">
 											</td>
-										    <td>{{ song.name }}</td>
+										    <td>
+												<p class="song" onclick="playSong('{{ song.uri }}')">{{ song.name }}</p>
+												<p>
+													{% if song.artists|length > 1 %}
+														{% for artist in song.artists %}
+															{{ artist.name }},
+														{% endfor %}
+													{% else %}
+														{{ song['artists'][0]['name'] }}
+													{% endif %}
+												</p>
+											</td>
 <!--										  <td>{% for artist in song.artist %}{{ artist.name }}{% endfor %}</td>-->
 										    <td>{{ song.album.name }}</td>
 										</tr>
@@ -91,8 +133,53 @@
 								</table>
 							</article>
 
+							{% for playlist in anchor_playlists: %}
+							<article id="{{ loop.index }}">
+								<h2 class="major">{{ anchor_words[loop.index-1] }}</h2>
+								<span class="image main"><img src="images/pic02.jpg" alt="" /></span>
+								<table class="table table-dark">
+									<thead>
+										<tr>
+										    <th scope="col">#</th>
+											<th scope="col"></th>
+										    <th scope="col">Title</th>
+<!--										  <th scope="col">Artists</th>-->
+										    <th scope="col">Album</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for song in playlist['items'] %}
+										<tr>
+										    <th scope="row">{{ loop.index }}</th>
+											<td>
+												<img src="{{ song['track']['album']['images'][2]['url'] }}">
+											</td>
+										    <td>
+												<p class="song" onclick="playSong('{{ song.track.uri }}')">{{
+													song.track.name
+													}}</p>
+												<p>
+													{% if song.track.artists|length > 1 %}
+														{% for artist in song.track.artists %}
+															{{ artist.name }},
+														{% endfor %}
+													{% else %}
+														{{ song['track']['artists'][0]['name'] }}
+													{% endif %}
+												</p>
+											</td>
+<!--										  <td>{% for artist in song.artist %}{{ artist.name }}{% endfor %}</td>-->
+										    <td>{{ song.track.album.name }}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</article>
+							{% endfor %}
+
+
 						<!-- Work -->
-							<article id="work">
+							<article id="#">
 								<h2 class="major">Work</h2>
 								<span class="image main"><img src="images/pic02.jpg" alt="" /></span>
 								<p>Adipiscing magna sed dolor elit. Praesent eleifend dignissim arcu, at eleifend sapien imperdiet ac. Aliquam erat volutpat. Praesent urna nisi, fringila lorem et vehicula lacinia quam. Integer sollicitudin mauris nec lorem luctus ultrices.</p>
@@ -100,7 +187,7 @@
 							</article>
 
 						<!-- About -->
-							<article id="about">
+							<article id="#">
 								<h2 class="major">About</h2>
 								<span class="image main"><img src="images/pic03.jpg" alt="" /></span>
 								<p>Lorem ipsum dolor sit amet, consectetur et adipiscing elit. Praesent eleifend dignissim arcu, at eleifend sapien imperdiet ac. Aliquam erat volutpat. Praesent urna nisi, fringila lorem et vehicula lacinia quam. Integer sollicitudin mauris nec lorem luctus ultrices. Aliquam libero et malesuada fames ac ante ipsum primis in faucibus. Cras viverra ligula sit amet ex mollis mattis lorem ipsum dolor sit amet.</p>
@@ -383,7 +470,7 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 
 				<!-- Footer -->
 					<footer id="footer">
-						<p class="copyright">&copy; Untitled. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+						<p class="copyright">&copy; Jacob Stephens.</p>
 					</footer>
 
 			</div>
