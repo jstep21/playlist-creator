@@ -30,11 +30,9 @@
 
 			p.song {
 				cursor: pointer;
-				color: blue;
-				text-decoration: underline;
 			}
 			p.song:hover {
-				color: darkblue;
+				color: darkGray;
 			}
 		</style>
 		<script>
@@ -135,7 +133,7 @@
 
 							{% for playlist in anchor_playlists: %}
 							<article id="{{ loop.index }}">
-								<h2 class="major">{{ anchor_words[loop.index-1] }}</h2>
+								<h2 class="major">{{ anchor_words[loop.index-1][1] }}</h2>
 								<span class="image main"><img src="images/pic02.jpg" alt="" /></span>
 								<table class="table table-dark">
 									<thead>

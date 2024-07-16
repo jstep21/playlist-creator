@@ -3,10 +3,9 @@ import re
 import requests
 import time
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify
 
-#
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.environ.get("SPOTIPY_REDIRECT_URI")
@@ -34,7 +33,7 @@ def home():
     description = ''
     daylist_name = ''
     daylist_image_url = ''
-    current_user = sp.current_user()['id']\
+    current_user = sp.current_user()['id']
 
     for playlist in current_playlists:
         if "daylist" in playlist['name']:
@@ -58,13 +57,11 @@ def home():
         anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
 
     song_uris = []
-    for song in current_daylist['items']:
-        song_uris.append(song['track']['uri'])
-
     songs = []
 
     for song in current_daylist['items']:
         songs.append(song['track'])
+        song_uris.append(song['track']['uri'])
 
     return render_template(template_name_or_list='index.html',
                            daylist_name=daylist_name,
@@ -88,6 +85,11 @@ def play_song():
     except Exception as e:
         print(e)
         return jsonify(success=False), 500
+
+
+@app.route('/generate-playlist', methods=['POST'])
+def generate_playlist():
+    print("sf")
 
 
 if __name__ == "__main__":
