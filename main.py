@@ -17,7 +17,8 @@ app = Flask(__name__)
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
                                                client_secret=SPOTIPY_CLIENT_SECRET,
                                                redirect_uri=SPOTIPY_REDIRECT_URI,
-                                               scope='user-library-read playlist-modify-public streaming '
+                                               scope='user-library-read playlist-modify-public playlist-modify-private '
+                                                     'streaming '
                                                      'user-read-playback-state user-modify-playback-state',
                                                show_dialog=True,
                                                cache_path='.cache',

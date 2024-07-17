@@ -28,10 +28,10 @@
 			}
 
 
-			p.song {
+			li.song {
 				cursor: pointer;
 			}
-			p.song:hover {
+			li.song:hover {
 				color: darkGray;
 			}
 		</style>
@@ -98,7 +98,6 @@
 										    <th scope="col">#</th>
 											<th scope="col"></th>
 										    <th scope="col">Title</th>
-<!--										  <th scope="col">Artists</th>-->
 										    <th scope="col">Album</th>
 										</tr>
 									</thead>
@@ -107,21 +106,30 @@
 										<tr>
 										    <th scope="row">{{ loop.index }}</th>
 											<td>
-												<img src="{{ song['album']['images'][2]['url'] }}">
+												<img class="album-img" src="{{ song['album']['images'][2]['url'] }}"
+													 alt="album artwork">
 											</td>
 										    <td>
-												<p class="song" onclick="playSong('{{ song.uri }}')">{{ song.name }}</p>
-												<p>
-													{% if song.artists|length > 1 %}
-														{% for artist in song.artists %}
-															{{ artist.name }},
-														{% endfor %}
-													{% else %}
-														{{ song['artists'][0]['name'] }}
-													{% endif %}
-												</p>
+												<ul class="list-unstyled">
+													<li class="song" onclick="playSong('{{ song.uri }}')">{{ song.name
+														}}<br>
+														<div class="artists">
+														{% if song.artists|length > 1 %}
+															{% for artist in song.artists %}
+																{% if loop.index == song.artists|length %}
+																	{{ artist.name }}
+																{% else %}
+																	{{ artist.name }},
+																{% endif %}
+															{% endfor %}
+														{% else %}
+															{{ song['artists'][0]['name'] }}
+														{% endif %}
+														</div>
+													</li>
+												</ul>
+
 											</td>
-<!--										  <td>{% for artist in song.artist %}{{ artist.name }}{% endfor %}</td>-->
 										    <td>{{ song.album.name }}</td>
 										</tr>
 										{% endfor %}
@@ -141,7 +149,6 @@
 										    <th scope="col">#</th>
 											<th scope="col"></th>
 										    <th scope="col">Title</th>
-<!--										  <th scope="col">Artists</th>-->
 										    <th scope="col">Album</th>
 										</tr>
 									</thead>
@@ -150,23 +157,31 @@
 										<tr>
 										    <th scope="row">{{ loop.index }}</th>
 											<td>
-												<img src="{{ song['track']['album']['images'][2]['url'] }}">
+												<img class="album-img"
+													 src="{{ song['track']['album']['images'][2]['url'] }}">
 											</td>
 										    <td>
-												<p class="song" onclick="playSong('{{ song.track.uri }}')">{{
-													song.track.name
-													}}</p>
-												<p>
-													{% if song.track.artists|length > 1 %}
-														{% for artist in song.track.artists %}
-															{{ artist.name }},
-														{% endfor %}
-													{% else %}
-														{{ song['track']['artists'][0]['name'] }}
-													{% endif %}
-												</p>
+												<ul class="list-unstyled">
+													<li class="song" onclick="playSong('{{ song.track.uri }}')">{{
+														song.track.name
+														}}<br>
+														<div class="artists">
+														{% if song.track.artists|length > 1 %}
+															{% for artist in song.track.artists %}
+																{% if loop.index == song.track.artists|length %}
+																	{{ artist.name }}
+																{% else %}
+																	{{ artist.name }},
+																{% endif %}
+															{% endfor %}
+														{% else %}
+															{{ song['track']['artists'][0]['name'] }}
+														{% endif %}
+														</div>
+													</li>
+												</ul>
+
 											</td>
-<!--										  <td>{% for artist in song.artist %}{{ artist.name }}{% endfor %}</td>-->
 										    <td>{{ song.track.album.name }}</td>
 										</tr>
 										{% endfor %}

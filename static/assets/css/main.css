@@ -209,9 +209,16 @@ input, select, textarea {
 	}
 
 	p {
-		margin: 0 0 2rem 0;
+		margin: 0 0 0 0;
 	}
 
+.artists {
+    color: gray;
+}
+
+.album-img {
+    margin-top: 30px;
+}
 	h1, h2, h3, h4, h5, h6 {
 		color: #ffffff;
 		font-weight: 600;
