@@ -25,8 +25,7 @@ current daylist with the "Show Daylist" button along the bottom list.
 From here, the user is able to click on any song and hear it play through their chosen audio device, if you have it 
 set up (more details below and in comments in <code>main.py</code>)
 
-## Getting Started
-### Prerequisites
+## Prerequisites
 <ul>
     <li>Pycharm, VSCode (add the Python extension) or any IDE for writing code in Python</li>
     <li>Have a Spotify account and log into <a href="https://developer.spotify.com/">Spotify for 
@@ -43,26 +42,30 @@ Developers</a>
     <li>Spotipy installed in the Virtual Environment (<code>pip install spotipy</code>)</li>
 </ul>
 
-### Installation
+## Installation
 
-<h5>Clone this Repository</h5>
-```commandline
+### Clone this Repository
+
+```bash
 git clone https://github.com/jstep21/playlist-creator.git
 ```
 
-<h5>Install Necessary Packages</h5>
+### Install Necessary Packages
 
 <h6>Flask</h6>
+
 ```bash
 pip install flask
 ```
 
 <h6>Spotipy</h6>
+
 ```bash
 pip install spotipy
 ```
 
 <h6>Requests</h6>
+
 ```bash
 pip install requests
 ```
