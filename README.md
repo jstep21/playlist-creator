@@ -53,16 +53,16 @@ git clone https://github.com/jstep21/playlist-creator.git
 <h5>Install Necessary Packages</h5>
 
 <h6>Flask</h6>
-```commandline
+```bash
 pip install flask
 ```
 
 <h6>Spotipy</h6>
-```commandline
+```bash
 pip install spotipy
 ```
 
 <h6>Requests</h6>
-```commandline
+```bash
 pip install requests
 ```
