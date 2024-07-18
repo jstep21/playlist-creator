@@ -36,6 +36,11 @@ def home():
     daylist_image_url = ''
     current_user = sp.current_user()['id']
 
+    # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
+    # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
+    # devices = sp.devices()
+    # print(devices)
+
     for playlist in current_playlists:
         if "daylist" in playlist['name']:
             daylist_playlist_id = playlist['id']
