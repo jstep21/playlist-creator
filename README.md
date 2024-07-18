@@ -23,7 +23,9 @@ current daylist with the "Show Daylist" button along the bottom list.
 <img src="static/images/playlist1.png">
 
 From here, the user is able to click on any song and hear it play through their chosen audio device, if you have it 
-set up (more details below and in comments in <code>main.py</code>)
+set up (more details below and in comments in <code>main.py</code>). Future development of this project will allow the 
+user to choose multiple key-words from a dropdown menu and generate a new playlist from those key-words (the program will 
+randomly select songs based on user selections)
 
 ## Prerequisites
 <ul>
@@ -34,10 +36,15 @@ Developers</a>
         <ul>
             <li>Go to your Dashboard and create a new app</li>
             <li>Add Client ID, Client Secret and Redirect URI to the project as environment variables</li>
-            <li>Also add your Username and Device ID (Optional but needed for audio playback, see comments in 
-<code>main.py</code> to find your audio device's id)
-</li>
-        </ul></li>
+            <li>Also add your Username and Device ID (optional but needed for audio playback, see comments in 
+            <code>main.py</code> to find your audio device's id)
+            </li>
+        </ul>
+    </li>
+    <li>This project uses the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework and the 
+        <a href="https://spotipy.readthedocs.io/en/2.24.0/">Spotipy</a> Python library for the
+        <a href="https://developer.spotify.com/documentation/web-api">Spotify Web API</a> (installation instructions below)
+    </li>
 </ul>
 
 ## Installation
@@ -50,20 +57,14 @@ git clone https://github.com/jstep21/playlist-creator.git
 
 ### Install Necessary Packages
 
-<h6>Flask</h6>
+###### Flask
 
 ```bash
 pip install flask
 ```
 
-<h6>Spotipy</h6>
+###### Spotipy
 
 ```bash
 pip install spotipy
-```
-
-<h6>Requests</h6>
-
-```bash
-pip install requests
 ```
