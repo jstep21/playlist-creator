@@ -38,8 +38,6 @@ Developers</a>
 <code>main.py</code> to find your audio device's id)
 </li>
         </ul></li>
-    <li>Flask installed in the Virtual Environment (<code>pip install flask</code>)</li>
-    <li>Spotipy installed in the Virtual Environment (<code>pip install spotipy</code>)</li>
 </ul>
 
 ## Installation
