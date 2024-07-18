@@ -86,12 +86,6 @@
 						</nav>
 					</header>
 
-<!--				<select class="form-select" multiple aria-label="multiple select example">-->
-<!--				  <option selected>Open this select menu</option>-->
-<!--				  <option value="1">One</option>-->
-<!--				  <option value="2">Two</option>-->
-<!--				  <option value="3">Three</option>-->
-<!--				</select>-->
 
 				<!-- Main -->
 					<div id="main">
@@ -99,8 +93,7 @@
 						<!-- Intro -->
 							<article id="show-daylist">
 								<h2 class="major">{{ daylist_name }}</h2>
-								<span class="image main"><img src="images/pic01.jpg" alt="" /></span>
-								<table class="table table-dark">
+								<table class="table-wrapper">
 									<thead>
 										<tr>
 										    <th scope="col">#</th>
@@ -136,9 +129,8 @@
 														</div>
 													</li>
 												</ul>
-
 											</td>
-										    <td>{{ song.album.name }}</td>
+										    <td class="album-name">{{ song.album.name }}</td>
 										</tr>
 										{% endfor %}
 
@@ -150,8 +142,7 @@
 							{% for playlist in anchor_playlists: %}
 							<article id="{{ loop.index }}">
 								<h2 class="major">{{ anchor_words[loop.index-1][1] }}</h2>
-								<span class="image main"><img src="images/pic02.jpg" alt="" /></span>
-								<table class="table table-dark">
+								<table class="table-wrapper table-dark">
 									<thead>
 										<tr>
 										    <th scope="col">#</th>
@@ -174,21 +165,22 @@
 														song.track.name
 														}}<br>
 														<div class="artists">
-														{% if song.track.artists|length > 1 %}
-															{% for artist in song.track.artists %}
-																{% if loop.index == song.track.artists|length %}
-																	{{ artist.name }}
-																{% else %}
-																	{{ artist.name }},
-																{% endif %}
-															{% endfor %}
-														{% else %}
-															{{ song['track']['artists'][0]['name'] }}
-														{% endif %}
+															<em>
+															{% if song.track.artists|length > 1 %}
+																{% for artist in song.track.artists %}
+																	{% if loop.index == song.track.artists|length %}
+																		{{ artist.name }}
+																	{% else %}
+																		{{ artist.name }},
+																	{% endif %}
+																{% endfor %}
+															{% else %}
+																{{ song['track']['artists'][0]['name'] }}
+															{% endif %}
+															</em>
 														</div>
 													</li>
 												</ul>
-
 											</td>
 										    <td>{{ song.track.album.name }}</td>
 										</tr>
@@ -197,53 +189,6 @@
 								</table>
 							</article>
 							{% endfor %}
-
-
-						<!-- Work -->
-							<article id="#">
-								<h2 class="major">Work</h2>
-								<span class="image main"><img src="images/pic02.jpg" alt="" /></span>
-								<p>Adipiscing magna sed dolor elit. Praesent eleifend dignissim arcu, at eleifend sapien imperdiet ac. Aliquam erat volutpat. Praesent urna nisi, fringila lorem et vehicula lacinia quam. Integer sollicitudin mauris nec lorem luctus ultrices.</p>
-								<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus pharetra. Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus amet feugiat tempus.</p>
-							</article>
-
-						<!-- About -->
-							<article id="#">
-								<h2 class="major">About</h2>
-								<span class="image main"><img src="images/pic03.jpg" alt="" /></span>
-								<p>Lorem ipsum dolor sit amet, consectetur et adipiscing elit. Praesent eleifend dignissim arcu, at eleifend sapien imperdiet ac. Aliquam erat volutpat. Praesent urna nisi, fringila lorem et vehicula lacinia quam. Integer sollicitudin mauris nec lorem luctus ultrices. Aliquam libero et malesuada fames ac ante ipsum primis in faucibus. Cras viverra ligula sit amet ex mollis mattis lorem ipsum dolor sit amet.</p>
-							</article>
-
-						<!-- Contact -->
-							<article id="contact">
-								<h2 class="major">Contact</h2>
-								<form method="post" action="#">
-									<div class="fields">
-										<div class="field half">
-											<label for="name">Name</label>
-											<input type="text" name="name" id="name" />
-										</div>
-										<div class="field half">
-											<label for="email">Email</label>
-											<input type="text" name="email" id="email" />
-										</div>
-										<div class="field">
-											<label for="message">Message</label>
-											<textarea name="message" id="message" rows="4"></textarea>
-										</div>
-									</div>
-									<ul class="actions">
-										<li><input type="submit" value="Send Message" class="primary" /></li>
-										<li><input type="reset" value="Reset" /></li>
-									</ul>
-								</form>
-								<ul class="icons">
-									<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-									<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-									<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-									<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-								</ul>
-							</article>
 
 						<!-- Elements -->
 							<article id="elements">

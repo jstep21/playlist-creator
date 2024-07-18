@@ -1,7 +1,5 @@
 # Spotify Playlist Creator
 
-
-
 ## Introduction
 
 
@@ -22,14 +20,15 @@ current daylist with the "Show Daylist" button along the bottom list.
 
 <img src="static/images/playlist1.png">
 
-From here, the user is able to click on any song and hear it play through their chosen audio device, if you have it 
+From here, the user is able to click on any song and hear it play through their chosen audio device, if they have it 
 set up (more details below and in comments in <code>main.py</code>). Future development of this project will allow the 
 user to choose multiple key-words from a dropdown menu and generate a new playlist from those key-words (the program will 
 randomly select songs based on user selections)
 
 ## Prerequisites
 <ul>
-    <li>Pycharm, VSCode (add the Python extension) or any IDE for writing code in Python</li>
+    <li><a href="https://www.jetbrains.com/pycharm/">Pycharm</a>, <a href="https://code.visualstudio.com/">VSCode</a>
+(add the Python extension) or any other IDE for writing code in Python</li>
     <li>Have a Spotify account and log into <a href="https://developer.spotify.com/">Spotify for 
 Developers</a> 
         <br> 
