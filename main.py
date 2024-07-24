@@ -53,21 +53,13 @@ def home():
         return 'Daylist not found'
 
     anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
-    # linked_descriptive_words = [word for href, word in anchor_words]
-    # hrefs = [href for href, word in anchor_words]
-
     current_daylist = sp.playlist_items(daylist_playlist_id)
 
     anchor_playlists = []
     for playlist, word in anchor_words:
         anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
 
-    song_uris = []
-    songs = []
-
-    for song in current_daylist['items']:
-        songs.append(song['track'])
-        song_uris.append(song['track']['uri'])
+    songs = [song['track'] for song in current_daylist['items']]
 
     return render_template(template_name_or_list='index.html',
                            daylist_name=daylist_name,
@@ -94,8 +86,8 @@ def play_song():
 
 
 @app.route('/generate-playlist', methods=['POST'])
-def generate_playlist():
-    print("sf")
+def generate_playlist(playlists):
+    songs_per_playlist = request.form.get('')
 
 
 if __name__ == "__main__":
