@@ -1,5 +1,7 @@
 import os
 import re
+from random import random, randrange
+
 import requests
 import time
 import spotipy
@@ -11,6 +13,7 @@ SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.environ.get("SPOTIPY_REDIRECT_URI")
 USERNAME = os.environ.get("USERNAME")
 DEVICE_ID = os.environ.get("DEVICE_ID")
+
 
 app = Flask(__name__)
 
@@ -71,9 +74,36 @@ def home():
                                anchor_playlists=anchor_playlists
                                )
     else:
-        words_selected = request.form.getlist('selected_assets')
-        return redirect(url_for('generate_playlist',
-                                words=words_selected))
+        new_playlist = []
+        daylist_playlist_id = None
+        daylist_image_url = ''
+        songs_per_mood = int(request.form.get('num_songs'))
+        hrefs = request.form.getlist('selected_assets')
+        current_playlists = sp.current_user_playlists()['items']
+
+        for playlist in current_playlists:
+            if 'daylist' in playlist['name']:
+                daylist_playlist_id = playlist['id']
+                daylist_image_url = playlist['images'][0]['url']
+
+        chosen_playlist_ids = [href.split('st:')[1] for href in hrefs]
+        chosen_playlist_ids.append(daylist_playlist_id)
+
+        chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
+        for playlist in chosen_playlist_items:
+            for i in range(songs_per_mood):
+                successful = False
+                while not successful:
+                    new_song_index = randrange(len(playlist['items']))
+                    new_song = playlist['items'][new_song_index]
+                    if new_song not in new_playlist:
+                        new_playlist.append(new_song)
+                        successful = True
+                    else:
+                        successful = False
+        return render_template('index.html',
+                               image_url=daylist_image_url,
+                               new_playlist=new_playlist)
 
 
 @app.route('/play', methods=['POST'])
@@ -88,12 +118,6 @@ def play_song():
     except Exception as e:
         print(e)
         return jsonify(success=False), 500
-
-
-@app.route('/generate-playlist')
-def generate_playlist(words):
-    mood_tags = words
-    return render_template('new-playlist.html')
 
 
 if __name__ == "__main__":

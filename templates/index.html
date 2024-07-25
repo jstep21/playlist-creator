@@ -11,6 +11,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<style>
+
 			#bg:after {
 				-moz-transform: scale(1.125);
 				-webkit-transform: scale(1.125);
@@ -229,9 +230,9 @@
 							<article id="generate">
 								<h3 class="major">Generate Playlist</h3>
 								<div class="container mt-5">
-									<form method="post" action="#">
+									<form method="post" action="#show-new-playlist">
 										<input type="text" placeholder="How many songs per mood would you like?"
-											   id="songs_per_mood" name="songs_per_mood"/>
+											   id="num_songs" name="num_songs"/>
 										<div class="input-group mb-3 rounded">
 										  <button class="btn btn-outline-secondary w-100 dropdown-toggle"
 												  data-bs-auto-close="outside" type="button" data-bs-toggle="dropdown"
@@ -239,10 +240,10 @@
 										  <ul class="dropdown-menu dropdown-menu-dark w-100">
 										  {% for href, word in anchor_words %}
 											<li>
-											  <input class="form-check-input" type="checkbox" value="{{ word }}"
-													 id="{{ word }}"
+											  <input class="form-check-input" type="checkbox" value="{{ href }}"
+													 id="{{ href }}"
 													 name="selected_assets">
-											  <label class="form-check-label" for="{{ word }}">{{ word }}</label>
+											  <label class="form-check-label" for="{{ href }}">{{ word }}</label>
 											</li>
 										  {% endfor %}
 										  </ul>
@@ -254,18 +255,59 @@
 										</ul>
 									</form>
 								</div>
-<!--								<div class="dropdown">-->
-<!--								  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--									Choose some moods-->
-<!--								  </button>-->
-<!--									<input id="txt-selections"/>-->
-<!--								  <ul class="dropdown-menu dropdown-menu-dark" id="selections">-->
-<!--									  {% for href, word in anchor_words %}-->
-<!--										<li><a class="dropdown-item" href="#">{{ word }}</a></li>-->
-<!--									  {% endfor %}-->
-<!--								  </ul>-->
-<!--								</div>-->
 
+							</article>
+							<article id="show-new-playlist">
+								{% if not new_playlist %}
+								<h1>Unable to create playlist</h1>
+								{% else %}
+								<h2 class="major">new playlist</h2>
+								<table class="table-wrapper table-dark">
+									<thead>
+										<tr>
+											<th scope="col">#</th>
+											<th scope="col"></th>
+											<th scope="col">Title</th>
+											<th scope="col">Album</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for song in new_playlist %}
+										<tr>
+											<th scope="row">{{ loop.index }}</th>
+											<td>
+												<img class="album-img"
+													 src="{{ song['track']['album']['images'][2]['url'] }}">
+											</td>
+											<td>
+												<ul class="list-unstyled">
+													<li class="song" onclick="playSong('{{ song.track.uri }}')">{{
+														song.track.name
+														}}<br>
+														<div class="artists">
+															<em>
+															{% if song.track.artists|length > 1 %}
+																{% for artist in song.track.artists %}
+																	{% if loop.index == song.track.artists|length %}
+																		{{ artist.name }}
+																	{% else %}
+																		{{ artist.name }},
+																	{% endif %}
+																{% endfor %}
+															{% else %}
+																{{ song['track']['artists'][0]['name'] }}
+															{% endif %}
+															</em>
+														</div>
+													</li>
+												</ul>
+											</td>
+											<td>{{ song.track.album.name }}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+								{% endif %}
 							</article>
 
 						<!-- Elements -->
