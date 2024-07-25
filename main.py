@@ -26,49 +26,54 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
                                                ))
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    current_playlists = sp.current_user_playlists()['items']
-    daylist_playlist_id = None
-    new_playlist_id = None
-    description = ''
-    daylist_name = ''
-    daylist_image_url = ''
-    current_user = sp.current_user()['id']
+    if request.method == 'GET':
+        current_playlists = sp.current_user_playlists()['items']
+        daylist_playlist_id = None
+        new_playlist_id = None
+        description = ''
+        daylist_name = ''
+        daylist_image_url = ''
+        current_user = sp.current_user()['id']
 
-    # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
-    # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
-    # devices = sp.devices()
-    # print(devices)
+        # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
+        # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
+        # devices = sp.devices()
+        # print(devices)
 
-    for playlist in current_playlists:
-        if "daylist" in playlist['name']:
-            daylist_playlist_id = playlist['id']
-            description = playlist['description']
-            daylist_name = playlist['name']
-            daylist_image_url = playlist['images'][0]['url']
-        # if playlist['name'] == 'new_playlist_name':
+        for playlist in current_playlists:
+            if "daylist" in playlist['name']:
+                daylist_playlist_id = playlist['id']
+                description = playlist['description']
+                daylist_name = playlist['name']
+                daylist_image_url = playlist['images'][0]['url']
+            # if playlist['name'] == 'new_playlist_name':
 
-    if not daylist_playlist_id:
-        return 'Daylist not found'
+        if not daylist_playlist_id:
+            return 'Daylist not found'
 
-    anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
-    current_daylist = sp.playlist_items(daylist_playlist_id)
+        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
+        current_daylist = sp.playlist_items(daylist_playlist_id)
 
-    anchor_playlists = []
-    for playlist, word in anchor_words:
-        anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+        anchor_playlists = []
+        for playlist, word in anchor_words:
+            anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
 
-    songs = [song['track'] for song in current_daylist['items']]
+        songs = [song['track'] for song in current_daylist['items']]
 
-    return render_template(template_name_or_list='index.html',
-                           daylist_name=daylist_name,
-                           description=description,
-                           image_url=daylist_image_url,
-                           songs=songs,
-                           anchor_words=anchor_words,
-                           anchor_playlists=anchor_playlists
-                           )
+        return render_template(template_name_or_list='index.html',
+                               daylist_name=daylist_name,
+                               description=description,
+                               image_url=daylist_image_url,
+                               songs=songs,
+                               anchor_words=anchor_words,
+                               anchor_playlists=anchor_playlists
+                               )
+    else:
+        words_selected = request.form.getlist('selected_assets')
+        return redirect(url_for('generate_playlist',
+                                words=words_selected))
 
 
 @app.route('/play', methods=['POST'])
@@ -85,9 +90,10 @@ def play_song():
         return jsonify(success=False), 500
 
 
-@app.route('/generate-playlist', methods=['POST'])
-def generate_playlist(playlists):
-    songs_per_playlist = request.form.get('')
+@app.route('/generate-playlist')
+def generate_playlist(words):
+    mood_tags = words
+    return render_template('new-playlist.html')
 
 
 if __name__ == "__main__":
