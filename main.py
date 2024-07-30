@@ -1,6 +1,6 @@
 import os
 import re
-from random import random, randrange
+from random import random, randrange, shuffle
 
 import requests
 import time
@@ -31,6 +31,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    """Renders home route. When the user first enters the page get their daylist and mood tags """
     if request.method == 'GET':
         current_playlists = sp.current_user_playlists()['items']
         daylist_playlist_id = None
@@ -77,17 +78,36 @@ def home():
         new_playlist = []
         daylist_playlist_id = None
         daylist_image_url = ''
+        daylist_name = ''
+
         songs_per_mood = int(request.form.get('num_songs'))
-        hrefs = request.form.getlist('selected_assets')
+        seed_playlists = request.form.getlist('selected_assets')
+
+        hrefs = [href for href, word in seed_playlists]
+        chosen_moods = [word for href, word in seed_playlists]
+        new_playlist_words = []
+
+        for i in range(3):
+            rand_index = randrange(len(chosen_moods))
+            new_playlist_words.append(chosen_moods[rand_index])
+
+        new_playlist_name = f''
         current_playlists = sp.current_user_playlists()['items']
 
         for playlist in current_playlists:
             if 'daylist' in playlist['name']:
                 daylist_playlist_id = playlist['id']
                 daylist_image_url = playlist['images'][0]['url']
+                daylist_name = playlist['name']
+                # description = playlist['description']
+
+        name_split = daylist_name.split()
+        time_of_day = name_split[len(name_split)]
 
         chosen_playlist_ids = [href.split('st:')[1] for href in hrefs]
         chosen_playlist_ids.append(daylist_playlist_id)
+
+        # anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', description)
 
         chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
         for playlist in chosen_playlist_items:
@@ -101,6 +121,8 @@ def home():
                         successful = True
                     else:
                         successful = False
+
+        sp.playlist_add_items()
         return render_template('index.html',
                                image_url=daylist_image_url,
                                new_playlist=new_playlist)
