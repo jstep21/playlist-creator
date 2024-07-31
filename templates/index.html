@@ -21,7 +21,7 @@
 				-webkit-transition: -webkit-transform 0.325s ease-in-out, -webkit-filter 0.325s ease-in-out;
 				-ms-transition: -ms-transform 0.325s ease-in-out, -ms-filter 0.325s ease-in-out;
 				transition: transform 0.325s ease-in-out, filter 0.325s ease-in-out;
-				background-image: url('{{ image_url }}');
+				background-image: url('{{ daylist_info.image }}');
 				background-position: center;
 				background-size: cover;
 				background-repeat: no-repeat;
@@ -104,8 +104,8 @@
 						</div>
 						<div class="content">
 							<div class="inner">
-								<h1>{{ daylist_name }}</h1>
-								<p>{{ description | safe }}</p>
+								<h1>{{ daylist_info.name }}</h1>
+								<p>{{ daylist_info.description | safe }}</p>
 							</div>
 						</div>
 						<nav>
