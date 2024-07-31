@@ -46,7 +46,10 @@ def get_daylist():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    """Renders home route. When the user first enters the page get their daylist and mood tags """
+    """Renders home route.
+    When the user first enters the page, get their current Spotify daylist and associated mood tags.
+    When the user generates a new playlist, take user choices for number of songs and mood tags and create new
+    playlist"""
     if request.method == 'GET':
         daylist_dict = get_daylist()
 
@@ -76,6 +79,7 @@ def home():
 
         songs_per_mood = int(request.form.get('num_songs'))
         seed_playlists = request.form.getlist('selected_assets')
+        seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
         hrefs = [href for href, word in seed_playlists]
         chosen_moods = [word for href, word in seed_playlists]
@@ -84,16 +88,17 @@ def home():
         for i in range(3):
             rand_index = randrange(len(chosen_moods))
             new_playlist_words.append(chosen_moods[rand_index])
+            chosen_moods.remove(chosen_moods[rand_index])
 
-        new_playlist_name = f''
-
+        print(new_playlist_words)
         name_split = daylist_dict['name'].split()
-        time_of_day = name_split[len(name_split)]
+        time_of_day = name_split[len(name_split)-1]
+        day_of_week = name_split[len(name_split)-2]
+        new_playlist_name = (f'{new_playlist_words[0]} {new_playlist_words[1]} for {new_playlist_words[2]}'
+                             f' {time_of_day}s')
 
         chosen_playlist_ids = [href.split('st:')[1] for href in hrefs]
         chosen_playlist_ids.append(daylist_dict['id'])
-
-        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
 
         chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
         for playlist in chosen_playlist_items:
@@ -108,14 +113,17 @@ def home():
                     else:
                         successful = False
 
-        sp.playlist_add_items()
+        # where a new playlist will be created...
+        # sp.playlist_add_items()
         return render_template('index.html',
-                               image_url=daylist_dict['image'],
-                               new_playlist=new_playlist)
+                               daylist_info=daylist_dict,
+                               new_playlist=new_playlist,
+                               new_playlist_name=new_playlist_name)
 
 
 @app.route('/play', methods=['POST'])
 def play_song():
+    """Route to handle music playback when the user clicks on a song"""
     data = request.get_json()
     song_uri = data.get('song_uri')
 

@@ -240,10 +240,11 @@
 										  <ul class="dropdown-menu dropdown-menu-dark w-100">
 										  {% for href, word in anchor_words %}
 											<li>
-											  <input class="form-check-input" type="checkbox" value="{{ (href, word) }}"
-													 id="{{ (href, word) }}"
+											  <input class="form-check-input" type="checkbox"
+													 value="{{ href }}|{{ word }}"
+													 id="{{ href }}|{{ word }}"
 													 name="selected_assets">
-											  <label class="form-check-label" for="{{ (href, word) }}">{{ word
+											  <label class="form-check-label" for="{{ href }}|{{ word }}">{{ word
 												  }}</label>
 											</li>
 										  {% endfor %}
@@ -262,7 +263,7 @@
 								{% if not new_playlist %}
 								<h1>Unable to create playlist</h1>
 								{% else %}
-								<h2 class="major">new playlist</h2>
+								<h2 class="major">{{ new_playlist_name }}</h2>
 								<table class="table-wrapper table-dark">
 									<thead>
 										<tr>
