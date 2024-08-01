@@ -31,21 +31,21 @@ def get_playlist(playlist_name):
     playlist_dict = {}
 
     for playlist in current_playlists:
-        print(playlist['name'])
-        if playlist_name in playlist['name'] and playlist_name == 'daylist':
-            playlist_dict = {
-                'id': playlist['id'],
-                'name': playlist['name'],
-                'description': playlist['description'],
-                'image': playlist['images'][0]['url']
-            }
-        elif playlist_name in playlist['name']:
-            playlist_dict = {
-                'id': playlist['id'],
-                'name': playlist['name']
-            }
-        else:
-            return 'playlist not found'
+        if playlist_name in playlist['name']:
+            if playlist_name == 'daylist':
+                playlist_dict = {
+                    'id': playlist['id'],
+                    'name': playlist['name'],
+                    'description': playlist['description'],
+                    'image': playlist['images'][0]['url']
+                }
+                break
+            else:
+                playlist_dict = {
+                    'id': playlist['id'],
+                    'name': playlist['name']
+                }
+                break
 
     return playlist_dict
 
@@ -97,7 +97,8 @@ def home():
     When the user generates a new playlist, take user choices for number of songs and mood tags and create new
     playlist """
     if request.method == 'GET':
-        daylist_dict = get_playlist(DAYLIST)
+        daylist_dict = get_playlist('daylist')
+        print(daylist_dict)
 
         # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
         # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
@@ -107,7 +108,9 @@ def home():
         if not daylist_dict:
             return 'Daylist not found'
 
-        current_daylist = sp.playlist_items(daylist_dict['id'])
+        daylist_id = daylist_dict['id']
+
+        current_daylist = sp.playlist_items(daylist_id)
 
         anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
         anchor_playlists = [sp.playlist_items(playlist.split(':')[2]) for playlist, word in anchor_words]
@@ -120,7 +123,7 @@ def home():
                                anchor_playlists=anchor_playlists
                                )
     else:
-        daylist_dict = get_playlist(DAYLIST)
+        daylist_dict = get_playlist('daylist')
 
         songs_per_mood = int(request.form.get('num_songs'))
         seed_playlists = request.form.getlist('selected_assets')
@@ -137,7 +140,7 @@ def home():
             name=new_playlist_name,
             public=False,
             collaborative=False,
-            description="randomly generated from daylist mixes and spotify's api"
+            description="randomly generated using daylist mixes and spotify's api"
         )
 
         new_playlist_dict = get_playlist(new_playlist_name)
