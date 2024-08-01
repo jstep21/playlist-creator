@@ -44,6 +44,44 @@ def get_daylist():
     return current_daylist
 
 
+def generate_playlist_name(chosen_moods, daylist_dict):
+    new_playlist_words = []
+    for i in range(3):
+        rand_index = randrange(len(chosen_moods))
+        new_playlist_words.append(chosen_moods[rand_index])
+        chosen_moods.remove(chosen_moods[rand_index])
+
+    print(new_playlist_words)
+    name_split = daylist_dict['name'].split()
+    time_of_day = name_split[len(name_split) - 1]
+    day_of_week = name_split[len(name_split) - 2]
+
+    return (f'{new_playlist_words[0]} {day_of_week}s for {new_playlist_words[1]} {time_of_day}s featuring'
+            f' {new_playlist_words[2]} vibes')
+
+
+def generate_playlist(daylist_dict, hrefs, songs_per_mood, ):
+    new_playlist = []
+
+    chosen_playlist_ids = [href.split('st:')[1] for href in hrefs]
+    chosen_playlist_ids.append(daylist_dict['id'])
+
+    chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
+    for playlist in chosen_playlist_items:
+        for i in range(songs_per_mood):
+            successful = False
+            while not successful:
+                new_song_index = randrange(len(playlist['items']))
+                new_song = playlist['items'][new_song_index]
+                if new_song not in new_playlist:
+                    new_playlist.append(new_song)
+                    successful = True
+                else:
+                    successful = False
+
+    return new_playlist
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     """Renders home route.
@@ -74,7 +112,6 @@ def home():
                                anchor_playlists=anchor_playlists
                                )
     else:
-        new_playlist = []
         daylist_dict = get_daylist()
 
         songs_per_mood = int(request.form.get('num_songs'))
@@ -83,38 +120,25 @@ def home():
 
         hrefs = [href for href, word in seed_playlists]
         chosen_moods = [word for href, word in seed_playlists]
-        new_playlist_words = []
+        new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
 
-        for i in range(3):
-            rand_index = randrange(len(chosen_moods))
-            new_playlist_words.append(chosen_moods[rand_index])
-            chosen_moods.remove(chosen_moods[rand_index])
-
-        print(new_playlist_words)
-        name_split = daylist_dict['name'].split()
-        time_of_day = name_split[len(name_split)-1]
-        day_of_week = name_split[len(name_split)-2]
-        new_playlist_name = (f'{new_playlist_words[0]} {new_playlist_words[1]} for {new_playlist_words[2]}'
-                             f' {time_of_day}s')
-
-        chosen_playlist_ids = [href.split('st:')[1] for href in hrefs]
-        chosen_playlist_ids.append(daylist_dict['id'])
-
-        chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
-        for playlist in chosen_playlist_items:
-            for i in range(songs_per_mood):
-                successful = False
-                while not successful:
-                    new_song_index = randrange(len(playlist['items']))
-                    new_song = playlist['items'][new_song_index]
-                    if new_song not in new_playlist:
-                        new_playlist.append(new_song)
-                        successful = True
-                    else:
-                        successful = False
+        new_playlist = generate_playlist(daylist_dict, hrefs, songs_per_mood)
 
         # where a new playlist will be created...
-        # sp.playlist_add_items()
+        sp.user_playlist_create(
+            user=USERNAME,
+            name=new_playlist_name,
+            public=False,
+            collaborative=False,
+            description=''
+        )
+
+        # sp.playlist_add_items(
+        #     playlist_id=0,
+        #     items='',
+        #     position=None
+        # )
+
         return render_template('index.html',
                                daylist_info=daylist_dict,
                                new_playlist=new_playlist,
