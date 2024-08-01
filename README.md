@@ -20,10 +20,13 @@ current daylist with the "Show Daylist" button along the bottom list.
 
 <img src="static/images/playlist1.png">
 
-From here, the user is able to click on any song and hear it play through their chosen audio device, if they have it 
-set up (more details below and in comments in <code>main.py</code>). Future development of this project will allow the 
-user to choose multiple key-words from a dropdown menu and generate a new playlist from those key-words (the program will 
-randomly select songs based on user selections)
+From here, the user is able to click on any song and hear it play through their chosen audio device given that they 
+have it set up (more details below and in comments in <code>main.py</code>). 
+
+Going back to the main page, when the user clicks the "generate playlist" button, they are presented with a dropdown 
+menu to select from the different vibey key-words. The new playlist that gets generated will be from the 'mix' playlists
+associated with them, and the name of the playlist will be generated from them. Using the example above, the new 
+playlist could be "Lounge Thursdays for Balearic Beat Mornings Featuring Chill"
 
 ## Prerequisites
 <ul>
