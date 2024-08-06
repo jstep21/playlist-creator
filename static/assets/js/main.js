@@ -243,6 +243,9 @@
 									.scrollTop(0)
 									.triggerHandler('resize.flexbox-fix');
 
+                            // Redirect to home route.
+                                window.location.href = homeUrl;
+
 							return;
 
 						}
@@ -278,6 +281,9 @@
 									setTimeout(function() {
 										locked = false;
 									}, delay);
+
+                                // Redirect to home
+                                    window.location.href = homeUrl;
 
 							}, 25);
 

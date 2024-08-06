@@ -73,6 +73,8 @@
 					}
 				});
 			}
+
+
 		</script>
 		<link rel="stylesheet" href="static/assets/css/main.css" />
 
@@ -112,7 +114,7 @@
 							<ul>
 								<li><a href="#show-daylist">Show daylist</a></li>
 								{% for href, word in anchor_words %}
-								<li><a href="#{{ loop.index }}">{{ word }}</a></li>
+								<li><a href="#playlist-{{ loop.index }}">{{ word }}</a></li>
 								{% endfor %}
 							</ul>
 
@@ -176,7 +178,7 @@
 							</article>
 
 							{% for playlist in anchor_playlists: %}
-							<article id="{{ loop.index }}">
+							<article id="playlist-{{ loop.index }}">
 								<h2 class="major">{{ anchor_words[loop.index-1][1] }}</h2>
 								<table class="table-wrapper table-dark">
 									<thead>
@@ -566,6 +568,10 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 		<!-- BG -->
 			<div id="bg"></div>
 
+		    <script>
+				var homeUrl = "{{ url_for('home') }}";
+			</script>
+
 		<!-- Scripts -->
 <!--		    &lt;!&ndash; Include jQuery &ndash;&gt;-->
 <!--			<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>-->
@@ -577,18 +583,6 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 			<!-- Include Bootstrap Tags Input JS -->
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
 			<!-- Custom Script to Add Selected Items to Tags Input -->
-			<script>
-				$(document).ready(function() {
-					$('#mood-tags-select').change(function() {
-						var selectedValue = $(this).val();
-						if (selectedValue) {
-							$('#mood-tags').tagsinput('add', selectedValue);
-							$(this).val('');
-						}
-					});
-				});
-
-			</script>
 
 			<script src="static/assets/js/jquery.min.js"></script>
 			<script src="static/assets/js/browser.min.js"></script>

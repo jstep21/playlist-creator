@@ -3,6 +3,7 @@ import re
 from random import randrange
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from spotipy.exceptions import SpotifyException
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
@@ -24,6 +25,7 @@ app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
 @app.route('/')
 def login():
     auth_url = create_spotify_oauth().get_authorize_url()
+    print(auth_url)
     return redirect(auth_url)
 
 
@@ -67,11 +69,8 @@ def home():
 
                 current_daylist = sp.playlist_items(daylist_id)
 
-                anchor_playlists = []
                 anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-                for playlist, word in anchor_words:
-                    anchor_playlists.append(playlist.split(':')[2])
-
+                anchor_playlists = [sp.playlist_items(playlist.split(':')[2]) for playlist, word in anchor_words]
                 songs = [song['track'] for song in current_daylist['items']]
 
                 return render_template(template_name_or_list='index.html',
@@ -211,7 +210,16 @@ def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
     # chosen_playlist_items = [sp.playlist_items(playlist_id) for playlist_id in chosen_playlist_ids]
     chosen_playlist_items = []
     for playlist_id in chosen_playlist_ids:
-        chosen_playlist_items.append(sp.playlist_items(playlist_id=playlist_id))
+        try:
+            items = sp.playlist_items(playlist_id=playlist_id)
+            if items is not None:
+                chosen_playlist_items.append(items)
+            else:
+                print(f'Warning: No items found for playlist ID {playlist_id}')
+        except SpotifyException as e:
+            print(f'Error retrieving items for playlist ID {playlist_id}: {e}')
+        except TypeError as e:
+            print(f'Typeerror retrieving items for playlist ID {playlist_id}: {e}')
 
     for playlist in chosen_playlist_items:
         for i in range(songs_per_mood):
