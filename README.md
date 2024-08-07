@@ -3,8 +3,8 @@
 ## Introduction
 
 
-The goal of this project is to be able to generate a new playlist from a Spotify user's personalized daylist. Every 
-Spotify user has access to their "daylist," an auto-generated playlist based on a user's listening habits at a 
+The goal of this project is to be able to generate a new playlist from a Spotify user's personalized "daylist." Every 
+Spotify user has access to their daylist, an auto-generated playlist based on a user's listening habits at a 
 specific time of day. 
 
 Let's say I check my daylist on a Thursday morning, all the songs in it will be based on 
@@ -20,13 +20,13 @@ current daylist with the "Show Daylist" button along the bottom list.
 
 <img src="static/images/playlist1.png">
 
-From here, the user is able to click on any song and hear it play through their chosen audio device given that they 
+From here, the user is able to click on any song and hear it play through their chosen audio device, given that they 
 have it set up (more details below and in comments in <code>main.py</code>). 
 
 Going back to the main page, when the user clicks the "generate playlist" button, they are presented with a dropdown 
 menu to select from the different vibey key-words. The new playlist that gets generated will be from the 'mix' playlists
 associated with them, and the name of the playlist will be generated from them. Using the example above, the new 
-playlist could be "Lounge Thursdays for Balearic Beat Mornings Featuring Chill"
+playlist could be "Lounge Thursdays for Balearic Beat Mornings Featuring Chill Vibes"
 
 ## Prerequisites
 <ul>
