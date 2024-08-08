@@ -4,6 +4,8 @@
 
 http://jstep21.pythonanywhere.com/
 
+For testing purposes at the moment. Please limit the number of songs per playlist to 10.
+
 ## Introduction
 
 
