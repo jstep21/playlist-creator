@@ -39,6 +39,53 @@ nav ul::before {
     transform: translateX(-50%);
 }
 
+@media screen and (min-width: 1361px){
+    #header nav ul li a {
+        font-size: 0.8rem;
+        padding: 5px 1.25rem 0 1.45rem;
+    }
+}
+
+@media screen and (max-width: 1360px) {
+    #bg:after {
+        background-size: 150%;
+    }
+    #header nav ul li {
+        width: 130px;
+    }
+    #header nav ul li a {
+        font-size: 0.7rem;
+        padding: 5px 1.25rem 0 1.45rem;
+    }
+}
+
+@media screen and (max-width: 1080px) {
+    #bg:after {
+        background-size: 200%;
+    }
+    #header nav ul li {
+        width: 100px;
+    }
+    #header nav ul li a {
+        font-size: 0.6rem;
+        padding: 0px;
+    }
+}
+
+@media screen and (max-width: 824px) {
+    #bg:after {
+        background-size: 250%;
+    }
+    #header nav ul li {
+        width: 100px;
+    }
+    #header nav ul li a {
+        font-size: 0.6rem;
+        padding: 0px;
+    }
+}
+
+
 /*
 	Dimension by HTML5 UP
 	html5up.net | @ajlkn
@@ -1392,10 +1439,8 @@ input, select, textarea {
 					height: 2.75rem;
 					justify-content: center;
                     align-items: center;
-					padding: 5px 1.25rem 0 1.45rem;
 					text-transform: uppercase;
 					letter-spacing: 0.2rem;
-					font-size: 0.8rem;
 					border-bottom: 0;
 				}
 
@@ -1521,7 +1566,6 @@ input, select, textarea {
 
 						#header nav ul li a {
 							height: 3rem;
-							line-height: 3rem;
 							min-width: 0;
 							width: 100%;
 						}
