@@ -8,7 +8,6 @@ The app is still in "development mode," so please email or text me your name and
 out!
 
 Email: jstephens1215@gmail.com  
-Phone: +1 (240) 602-7577
 
 ## Introduction
 
