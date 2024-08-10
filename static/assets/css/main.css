@@ -77,11 +77,13 @@ nav ul::before {
         background-size: 250%;
     }
     #header nav ul li {
-        width: 100px;
+        width: 200px;
     }
-    #header nav ul li a {
-        font-size: 0.6rem;
-        padding: 0px;
+}
+
+@media screen and (max-width: 480px) {
+    #bg:after {
+        background-size: 350%;
     }
 }
 
@@ -163,7 +165,7 @@ input, select, textarea {
 		width: device-width;
 	}
 
-	@media screen and (max-width: 480px) {
+	@media screen and (max-width: 824px) {
 
 		html, body {
 			min-width: 320px;
@@ -440,7 +442,7 @@ input, select, textarea {
 					width: calc(25% - 0.375rem);
 				}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			form > .fields {
 				width: calc(100% + 3rem);
@@ -802,7 +804,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			.image.main {
 				margin: 1.5rem 0;
@@ -932,7 +934,7 @@ input, select, textarea {
 				width: 100%;
 			}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			ul.actions:not(.fixed) {
 				-moz-flex-direction: column;
@@ -1303,7 +1305,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			#wrapper {
 				padding: 1rem;
@@ -1543,7 +1545,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			#header {
 				padding: 1.5rem 0;
@@ -1697,7 +1699,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 480px) {
+		@media screen and (max-width: 824px) {
 
 			#main article {
 				padding: 3rem 1.5rem 0.5rem 1.5rem ;
