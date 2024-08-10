@@ -173,7 +173,11 @@ def get_playlist(sp, playlist_name):
     found = False
 
     while not found:
-        current_playlists = sp.current_user_playlists(offset=offset)['items']
+        try:
+            current_playlists = sp.current_user_playlists(offset=offset)['items']
+        except SpotifyException as e:
+            print(f'Error fetching user playlists: {e}')
+            return redirect(url_for('home'))
 
         if not current_playlists:
             break
