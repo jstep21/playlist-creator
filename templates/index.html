@@ -34,7 +34,6 @@
 
 
 
-
 			li.song {
 				cursor: pointer;
 			}
@@ -118,12 +117,11 @@
 						</div>
 						<nav>
 							<ul>
-								<li><a href="#show-daylist">Show daylist</a></li>
-								{% for href, word in anchor_words %}
-								<li><a href="#playlist-{{ loop.index }}">{{ word }}</a></li>
+								<li class="show-playlist"><a href="#show-daylist">Show daylist</a></li>
+								{% for href, word in anchor_words|unique %}
+								<li class="show-playlist"><a href="#playlist-{{ loop.index }}">{{ word }}</a></li>
 								{% endfor %}
 							</ul>
-
 						</nav>
 						<form method="get" action="#generate">
 							<ul class="actions">
@@ -239,14 +237,12 @@
 								<h3 class="major">Generate Playlist</h3>
 								<div class="container mt-5">
 									<form method="post" action="#show-new-playlist">
-										<input type="text" placeholder="How many songs per mood would you like?"
-											   id="num_songs" name="num_songs"/>
 										<div class="input-group mb-3 rounded">
 										  <button class="btn btn-outline-secondary w-100 dropdown-toggle"
 												  data-bs-auto-close="outside" type="button" data-bs-toggle="dropdown"
 												  aria-expanded="false">Moods</button>
 										  <ul class="dropdown-menu dropdown-menu-dark w-100">
-										  {% for href, word in anchor_words %}
+										  {% for href, word in anchor_words|unique %}
 											<li>
 											  <input class="form-check-input" type="checkbox"
 													 value="{{ href }}|{{ word }}"
@@ -579,10 +575,6 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 			</script>
 
 		<!-- Scripts -->
-<!--		    &lt;!&ndash; Include jQuery &ndash;&gt;-->
-<!--			<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>-->
-<!--			&lt;!&ndash; Include Bootstrap JS &ndash;&gt;-->
-<!--			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>-->
 			<script
 				src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js">
 			</script>

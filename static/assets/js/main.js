@@ -244,7 +244,9 @@
 									.triggerHandler('resize.flexbox-fix');
 
                             // Redirect to home route.
-                                window.location.href = homeUrl;
+                                if ($article.attr('id') === 'show-new-playlist') {
+                                    window.location.href = homeUrl;
+                                }
 
 							return;
 
@@ -283,8 +285,9 @@
 									}, delay);
 
                                 // Redirect to home
-                                    window.location.href = homeUrl;
-
+                                    if ($article.attr('id') === 'show-new-playlist') {
+                                        window.location.href = homeUrl;
+                                    }
 							}, 25);
 
 					}, delay);

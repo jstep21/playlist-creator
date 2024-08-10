@@ -57,7 +57,6 @@ def home():
         sp = spotipy.Spotify(auth=token_info['access_token'])
         daylist_dict = get_playlist(sp, 'daylist')
 
-
         if not daylist_dict:
             return 'Daylist not found'
 
@@ -71,12 +70,19 @@ def home():
             daylist_id = daylist_dict['id']
 
             current_daylist = sp.playlist_items(daylist_id)
+            print(daylist_dict['description'])
 
             anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-            anchor_playlists = [sp.playlist_items(playlist.split(':')[2]) for playlist, word in anchor_words]
-            songs = [song['track'] for song in current_daylist['items']]
+            anchor_playlists = []
 
-            print(daylist_dict)
+            for playlist, word in anchor_words[:]:
+                try:
+                    anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+                except SpotifyException as e:
+                    print(f"Error with one of the {word} playlists. Error: {e}")
+                    anchor_words.remove((playlist, word))
+
+            songs = [song['track'] for song in current_daylist['items']]
 
             return render_template(template_name_or_list='index.html',
                                    daylist_info=daylist_dict,
@@ -86,7 +92,7 @@ def home():
                                    )
         # For POST requests
         else:
-            songs_per_mood = int(request.form.get('num_songs'))
+            songs_per_mood = 10
             seed_playlists = request.form.getlist('selected_assets')
             seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 

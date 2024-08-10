@@ -1434,12 +1434,19 @@ input, select, textarea {
 					border-left: 0;
 				}
 
+
 				#header nav ul li a {
 					display: flex;
 					height: 2.75rem;
 					justify-content: center;
                     align-items: center;
 					text-transform: uppercase;
+
+
+
+
+
+
 					letter-spacing: 0.2rem;
 					border-bottom: 0;
 				}
