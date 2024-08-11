@@ -52,7 +52,17 @@ def home():
         return redirect("/")
     else:
         if isinstance(token_info, dict):
-            sp = spotipy.Spotify(auth=token_info['access_token'])
+            auth_manager = create_spotify_oauth()
+            sp = spotipy.Spotify(auth_manager=auth_manager)
+
+            access_token = auth_manager.get_cached_token()
+
+            if access_token:
+                sp = spotipy.Spotify(auth=access_token['access_token'])
+            else:
+                print('No cached token available')
+                return redirect('/')
+
             daylist_dict = get_playlist(sp, 'daylist')
 
             if not daylist_dict:
@@ -144,11 +154,13 @@ def play_song():
 
 
 def create_spotify_oauth():
+    cache_path = os.path.join(os.getcwd(), '.cache')
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE
+        scope=SCOPE,
+        cache_path=cache_path
     )
 
 
