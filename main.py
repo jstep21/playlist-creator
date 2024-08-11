@@ -5,6 +5,10 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.exceptions import SpotifyException
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify
+# import logging
+#
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
@@ -24,8 +28,9 @@ app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
 
 @app.route('/')
 def login():
+    if 'token_info' in session:
+        return redirect(url_for('home'))
     auth_url = create_spotify_oauth().get_authorize_url()
-    print(auth_url)
     return redirect(auth_url)
 
 
@@ -35,8 +40,12 @@ def redirect_page():
     code = request.args.get('code')
     token_info = create_spotify_oauth().get_access_token(code)
 
-    session[TOKEN_INFO] = token_info
-    return redirect(url_for('home'))
+    if token_info:
+        session[TOKEN_INFO] = token_info
+        return redirect(url_for('home'))
+    else:
+        print('Error retrieving access token')
+        return 'Error retrieving access token', 500
 
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -45,94 +54,91 @@ def home():
     When the user first enters the page, get their current Spotify daylist and associated mood tags.
     When the user generates a new playlist, take user choices for number of songs and mood tags and create a new
     playlist """
-    try:
-        token_info = get_token()
-    except OSError:
-        print('User not logged in')
-        return redirect("/")
+    if 'token_info' not in session:
+        return redirect(url_for('login'))
+
+    token_info = session['token_info']
+
+    auth_manager = create_spotify_oauth()
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+
+    access_token = auth_manager.get_cached_token()
+
+    if access_token:
+        sp = spotipy.Spotify(auth=access_token['access_token'])
     else:
-        if isinstance(token_info, dict):
-            auth_manager = create_spotify_oauth()
-            sp = spotipy.Spotify(auth_manager=auth_manager)
+        print('No cached token available')
+        return redirect(url_for('login'))
 
-            access_token = auth_manager.get_cached_token()
+    daylist_dict = get_playlist(sp, 'daylist')
 
-            if access_token:
-                sp = spotipy.Spotify(auth=access_token['access_token'])
-            else:
-                print('No cached token available')
-                return redirect('/')
+    if not daylist_dict:
+        return 'Daylist not found'
 
-            daylist_dict = get_playlist(sp, 'daylist')
+    if request.method == 'GET':
 
-            if not daylist_dict:
-                return 'Daylist not found'
+        # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
+        # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
+        # devices = sp.devices()
+        # print(devices)
 
-            if request.method == 'GET':
+        daylist_id = daylist_dict['id']
 
-                # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
-                # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
-                # devices = sp.devices()
-                # print(devices)
+        current_daylist = sp.playlist_items(daylist_id)
 
-                daylist_id = daylist_dict['id']
+        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
+        anchor_playlists = []
 
-                current_daylist = sp.playlist_items(daylist_id)
-                print(daylist_dict['description'])
+        for playlist, word in anchor_words[:]:
+            try:
+                print("Fetching anchor words and playlists")
+                anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+                print("Successfully fetched data")
+            except SpotifyException as e:
+                print(f"Error with the {word} playlists. Error: {e}")
+                anchor_words.remove((playlist, word))
 
-                anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-                anchor_playlists = []
+        songs = [song['track'] for song in current_daylist['items']]
 
-                for playlist, word in anchor_words[:]:
-                    try:
-                        print("Fetching anchor words and playlists")
-                        anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
-                        print("Successfully fetched data")
-                    except SpotifyException as e:
-                        print(f"Error with the {word} playlists. Error: {e}")
-                        anchor_words.remove((playlist, word))
+        return render_template(template_name_or_list='index.html',
+                               daylist_info=daylist_dict,
+                               songs=songs,
+                               anchor_words=anchor_words,
+                               anchor_playlists=anchor_playlists
+                               )
+    # For POST requests
+    else:
+        songs_per_mood = 10
+        seed_playlists = request.form.getlist('selected_assets')
+        seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
-                songs = [song['track'] for song in current_daylist['items']]
+        hrefs = [href for href, word in seed_playlists]
+        chosen_moods = [word for href, word in seed_playlists]
 
-                return render_template(template_name_or_list='index.html',
-                                       daylist_info=daylist_dict,
-                                       songs=songs,
-                                       anchor_words=anchor_words,
-                                       anchor_playlists=anchor_playlists
-                                       )
-            # For POST requests
-            else:
-                songs_per_mood = 10
-                seed_playlists = request.form.getlist('selected_assets')
-                seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
+        new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
+        new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
 
-                hrefs = [href for href, word in seed_playlists]
-                chosen_moods = [word for href, word in seed_playlists]
+        sp.user_playlist_create(
+            user=sp.current_user()['id'],
+            name=new_playlist_name,
+            public=False,
+            collaborative=False,
+            description="randomly generated using daylist mixes and spotify's api"
+        )
 
-                new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
-                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+        new_playlist_dict = get_playlist(sp, new_playlist_name)
+        song_uris = [song['track']['uri'] for song in new_playlist]
 
-                sp.user_playlist_create(
-                    user=sp.current_user()['id'],
-                    name=new_playlist_name,
-                    public=False,
-                    collaborative=False,
-                    description="randomly generated using daylist mixes and spotify's api"
-                )
+        sp.playlist_add_items(
+            playlist_id=new_playlist_dict['id'],
+            items=song_uris,
+            position=None
+        )
 
-                new_playlist_dict = get_playlist(sp, new_playlist_name)
-                song_uris = [song['track']['uri'] for song in new_playlist]
-
-                sp.playlist_add_items(
-                    playlist_id=new_playlist_dict['id'],
-                    items=song_uris,
-                    position=None
-                )
-
-                return render_template('index.html',
-                                       daylist_info=daylist_dict,
-                                       new_playlist=new_playlist,
-                                       new_playlist_name=new_playlist_name)
+        return render_template('index.html',
+                               daylist_info=daylist_dict,
+                               new_playlist=new_playlist,
+                               new_playlist_name=new_playlist_name)
 
 
 @app.route('/play', methods=['POST'])
@@ -155,6 +161,8 @@ def play_song():
 
 def create_spotify_oauth():
     cache_path = os.path.join(os.getcwd(), '.cache')
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
@@ -167,12 +175,12 @@ def create_spotify_oauth():
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
     if not token_info:
-        print('token not found, redirecting to login...')
+        print('Token not found, redirecting to login...')
         return redirect(url_for('login'))
 
     token_info = create_spotify_oauth().validate_token(token_info)
     if not token_info:
-        print('2. token not found, redirecting to login...')
+        print('Token validation failed, redirecting to login...')
         return redirect(url_for('login'))
 
     session['TOKEN_INFO'] = token_info
