@@ -14,7 +14,7 @@ SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.environ.get("SPOTIPY_REDIRECT_URI")
 
-DEVICE_ID = os.environ.get("DEVICE_ID")
+# DEVICE_ID = os.environ.get("DEVICE_ID")
 DAYLIST = 'daylist'
 SCOPE = ('user-library-read playlist-modify-public playlist-modify-private streaming playlist-read-private '
          'user-read-playback-state user-modify-playback-state')
@@ -28,7 +28,7 @@ app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
 
 @app.route('/')
 def login():
-    if 'token_info' in session:
+    if TOKEN_INFO in session:
         return redirect(url_for('home'))
     auth_url = create_spotify_oauth().get_authorize_url()
     return redirect(auth_url)
@@ -128,22 +128,22 @@ def home():
                                new_playlist_name=new_playlist_name)
 
 
-@app.route('/play', methods=['POST'])
-def play_song():
-    """ Route to handle music playback when the user clicks on a song """
-    token_info = get_token()
-    if isinstance(token_info, dict):
-        sp = spotipy.Spotify(auth=token_info['access_token'])
-        data = request.get_json()
-        song_uri = data.get('song_uri')
-
-        try:
-            sp.transfer_playback(DEVICE_ID)
-            sp.start_playback(uris=[song_uri])
-            return jsonify(success=True)
-        except Exception as e:
-            print(e)
-            return jsonify(success=False), 500
+# @app.route('/play', methods=['POST'])
+# def play_song():
+#     """ Route to handle music playback when the user clicks on a song """
+#     token_info = get_token()
+#     if isinstance(token_info, dict):
+#         sp = spotipy.Spotify(auth=token_info['access_token'])
+#         data = request.get_json()
+#         song_uri = data.get('song_uri')
+#
+#         try:
+#             sp.transfer_playback(DEVICE_ID)
+#             sp.start_playback(uris=[song_uri])
+#             return jsonify(success=True)
+#         except Exception as e:
+#             print(e)
+#             return jsonify(success=False), 500
 
 
 def create_spotify_oauth():
