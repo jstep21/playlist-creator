@@ -151,11 +151,18 @@ def home():
 
 
 def create_spotify_oauth():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cache_path = os.path.join(base_dir, '.cache')
+
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE
+        scope=SCOPE,
+        cache_path=cache_path
     )
 
 
