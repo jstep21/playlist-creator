@@ -163,12 +163,12 @@ def get_token():
     token_info = session.get(TOKEN_INFO, None)
     if not token_info:
         print('Token not found, redirecting to login...')
-        return None
+        return redirect(url_for('login'))
 
     token_info = create_spotify_oauth().validate_token(token_info)
     if not token_info:
         print('Token validation failed, redirecting to login...')
-        return None
+        return redirect(url_for('login'))
 
     session['TOKEN_INFO'] = token_info
     return token_info
