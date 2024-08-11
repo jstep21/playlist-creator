@@ -54,91 +54,86 @@ def home():
     When the user first enters the page, get their current Spotify daylist and associated mood tags.
     When the user generates a new playlist, take user choices for number of songs and mood tags and create a new
     playlist """
-    if 'token_info' not in session:
-        return redirect(url_for('login'))
-
-    token_info = session['token_info']
-
-    auth_manager = create_spotify_oauth()
-    sp = spotipy.Spotify(auth_manager=auth_manager)
-
-    access_token = auth_manager.get_cached_token()
-
-    if access_token:
-        sp = spotipy.Spotify(auth=access_token['access_token'])
+    try:
+        token_info = get_token()
+    except OSError:
+         print('User not logged in')
+         return redirect(url_for('login'))
     else:
-        print('No cached token available')
-        return redirect(url_for('login'))
+        if isinstance(token_info, dict) is False:
+            return redirect(url_for('home'))
+            
+        sp = spotipy.Spotify(auth_token=token_info['access_token'])
 
-    daylist_dict = get_playlist(sp, 'daylist')
+        daylist_dict = get_playlist(sp, 'daylist')
 
-    if not daylist_dict:
-        return 'Daylist not found'
+        if not daylist_dict:
+            return 'Daylist not found'
 
-    if request.method == 'GET':
+        if request.method == 'GET':
 
-        # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
-        # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
-        # devices = sp.devices()
-        # print(devices)
+            # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
+            # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
+            # devices = sp.devices()
+            # print(devices)
 
-        daylist_id = daylist_dict['id']
+            daylist_id = daylist_dict['id']
 
-        current_daylist = sp.playlist_items(daylist_id)
+            current_daylist = sp.playlist_items(daylist_id)
 
-        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-        anchor_playlists = []
+            anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
+            anchor_playlists = []
 
-        for playlist, word in anchor_words[:]:
-            try:
-                print("Fetching anchor words and playlists")
-                anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
-                print("Successfully fetched data")
-            except SpotifyException as e:
-                print(f"Error with the {word} playlists. Error: {e}")
-                anchor_words.remove((playlist, word))
+            for playlist, word in anchor_words[:]:
+                try:
+                    print("Fetching anchor words and playlists")
+                    anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+                    print("Successfully fetched data")
+                except SpotifyException as e:
+                    print(f"Error with the {word} playlists. Error: {e}")
+                    anchor_words.remove((playlist, word))
 
-        songs = [song['track'] for song in current_daylist['items']]
+            songs = [song['track'] for song in current_daylist['items']]
 
-        return render_template(template_name_or_list='index.html',
-                               daylist_info=daylist_dict,
-                               songs=songs,
-                               anchor_words=anchor_words,
-                               anchor_playlists=anchor_playlists
-                               )
-    # For POST requests
-    else:
-        songs_per_mood = 10
-        seed_playlists = request.form.getlist('selected_assets')
-        seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
+            return render_template(template_name_or_list='index.html',
+                                   daylist_info=daylist_dict,
+                                   songs=songs,
+                                   anchor_words=anchor_words,
+                                   anchor_playlists=anchor_playlists
+                                   )
+        # For POST requests
+        else:
+            songs_per_mood = 10
+            seed_playlists = request.form.getlist('selected_assets')
+            seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
-        hrefs = [href for href, word in seed_playlists]
-        chosen_moods = [word for href, word in seed_playlists]
+            hrefs = [href for href, word in seed_playlists]
+            chosen_moods = [word for href, word in seed_playlists]
 
-        new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
-        new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+            new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
+            new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
 
-        sp.user_playlist_create(
-            user=sp.current_user()['id'],
-            name=new_playlist_name,
-            public=False,
-            collaborative=False,
-            description="randomly generated using daylist mixes and spotify's api"
-        )
+            sp.user_playlist_create(
+                user=sp.current_user()['id'],
+                name=new_playlist_name,
+                public=False,
+                collaborative=False,
+                description="randomly generated using daylist mixes and spotify's api"
+            )
 
-        new_playlist_dict = get_playlist(sp, new_playlist_name)
-        song_uris = [song['track']['uri'] for song in new_playlist]
+            new_playlist_dict = get_playlist(sp, new_playlist_name)
+            song_uris = [song['track']['uri'] for song in new_playlist]
 
-        sp.playlist_add_items(
-            playlist_id=new_playlist_dict['id'],
-            items=song_uris,
-            position=None
-        )
+            sp.playlist_add_items(
+                playlist_id=new_playlist_dict['id'],
+                items=song_uris,
+                position=None
+            )
 
-        return render_template('index.html',
-                               daylist_info=daylist_dict,
-                               new_playlist=new_playlist,
-                               new_playlist_name=new_playlist_name)
+            return render_template('index.html',
+                                   daylist_info=daylist_dict,
+                                   new_playlist=new_playlist,
+                                   new_playlist_name=new_playlist_name)
 
 
 @app.route('/play', methods=['POST'])
