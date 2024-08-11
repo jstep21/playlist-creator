@@ -160,15 +160,15 @@ def play_song():
 
 
 def create_spotify_oauth():
-    cache_path = '/home/jstep21/playlist-creator/.cache'
-    if not os.path.exists(cache_path):
-        os.makedirs(cache_path)
+    # cache_path = '/home/jstep21/playlist-creator/.cache'
+    # if not os.path.exists(cache_path):
+    #     os.makedirs(cache_path)
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
-        cache_path=cache_path
+        # cache_path=cache_path
     )
 
 
