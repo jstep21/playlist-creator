@@ -59,11 +59,10 @@ def home():
         return redirect(url_for('home'))
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
-
     daylist_dict = get_playlist(sp, 'daylist')
 
     if not daylist_dict:
-        return 'Daylist not found'
+        return 'Daylist not found', 404
 
     if request.method == 'GET':
 
@@ -73,9 +72,7 @@ def home():
         # print(devices)
 
         daylist_id = daylist_dict['id']
-
         current_daylist = sp.playlist_items(daylist_id)
-
         anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
         anchor_playlists = []
 
@@ -150,15 +147,18 @@ def play_song():
 
 
 def create_spotify_oauth():
-    # cache_path = '/home/jstep21/playlist-creator/.cache'
-    # if not os.path.exists(cache_path):
-    #     os.makedirs(cache_path)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cache_path = os.path.join(base_dir, '.cache')
+
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
-        # cache_path=cache_path
+        cache_path=cache_path
     )
 
 
