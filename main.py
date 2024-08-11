@@ -160,7 +160,7 @@ def play_song():
 
 
 def create_spotify_oauth():
-    cache_path = os.path.join(os.getcwd(), '.cache')
+    cache_path = '/home/jstep21/playlist-creator/.cache'
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
     return SpotifyOAuth(
