@@ -160,18 +160,34 @@ def create_spotify_oauth():
 
 
 def get_token():
-    token_info = session.get(TOKEN_INFO, None)
+    token_info = session.get(TOKEN_INFO)
     if not token_info:
-        print('Token not found, redirecting to login...')
-        return redirect(url_for('login'))
+        return None
 
-    token_info = create_spotify_oauth().validate_token(token_info)
-    if not token_info:
-        print('Token validation failed, redirecting to login...')
-        return redirect(url_for('login'))
+    sp_oauth = create_spotify_oauth()
 
-    session['TOKEN_INFO'] = token_info
+    try:
+        if sp_oauth.is_token_expired(token_info):
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+            session[TOKEN_INFO] = token_info
+    except Exception as e:
+        print(f'Error validating or refreshing token: {e}')
+        return None
+
     return token_info
+
+    # token_info = session.get(TOKEN_INFO, None)
+    # if not token_info:
+    #     print('Token not found, redirecting to login...')
+    #     return redirect(url_for('login'))
+    #
+    # token_info = create_spotify_oauth().validate_token(token_info)
+    # if not token_info:
+    #     print('Token validation failed, redirecting to login...')
+    #     return redirect(url_for('login'))
+    #
+    # session['TOKEN_INFO'] = token_info
+    # return token_info
 
 
 def get_playlist(sp, playlist_name):
