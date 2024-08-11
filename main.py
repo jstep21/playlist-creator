@@ -54,21 +54,11 @@ def home():
     When the user first enters the page, get their current Spotify daylist and associated mood tags.
     When the user generates a new playlist, take user choices for number of songs and mood tags and create a new
     playlist """
-    if 'token_info' not in session:
-        return redirect(url_for('login'))
+    token_info = get_token()
+    if token_info is None:
+        return redirect(url_for('home'))
 
-    token_info = session['token_info']
-
-    auth_manager = create_spotify_oauth()
-    sp = spotipy.Spotify(auth_manager=auth_manager)
-
-    access_token = auth_manager.get_cached_token()
-
-    if access_token:
-        sp = spotipy.Spotify(auth=access_token['access_token'])
-    else:
-        print('No cached token available')
-        return redirect(url_for('login'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
 
     daylist_dict = get_playlist(sp, 'daylist')
 
@@ -176,12 +166,12 @@ def get_token():
     token_info = session.get(TOKEN_INFO, None)
     if not token_info:
         print('Token not found, redirecting to login...')
-        return redirect(url_for('login'))
+        return None
 
     token_info = create_spotify_oauth().validate_token(token_info)
     if not token_info:
         print('Token validation failed, redirecting to login...')
-        return redirect(url_for('login'))
+        return None
 
     session['TOKEN_INFO'] = token_info
     return token_info
