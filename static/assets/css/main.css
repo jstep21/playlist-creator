@@ -1756,4 +1756,7 @@ input, select, textarea {
     img.album-img {
         padding-bottom: 10px;
     }
+    #main article {
+        padding: 3rem 0.5rem 0.5rem 0.5rem
+    }
 }
