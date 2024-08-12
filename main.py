@@ -59,29 +59,34 @@ def home():
     except OSError:
         print('User not logged in')
         return redirect("/")
-    else:
-        if isinstance(token_info, dict):
-            sp = spotipy.Spotify(auth=token_info['access_token'])
-            daylist_dict = get_playlist(sp, 'daylist')
 
-            if not daylist_dict:
-                return 'Daylist not found'
+    if not isinstance(token_info, dict):
+        print('Invalid token information')
+        return redirect("/")
 
-            if request.method == 'GET':
+    sp = spotipy.Spotify(auth=token_info['access_token'])
 
-                # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
-                # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
-                # devices = sp.devices()
-                # print(devices)
+    try:
+        daylist_dict = get_playlist(sp, 'daylist')
+        if not daylist_dict:
+            print('Daylist not found')
+            return 'Daylist not found'
 
+        if request.method == 'GET':
+
+            # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
+            # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
+            # devices = sp.devices()
+            # print(devices)
+
+            try:
                 daylist_id = daylist_dict['id']
 
                 current_daylist = sp.playlist_items(daylist_id)
-                print(daylist_dict['description'])
+                songs = [song['track'] for song in current_daylist['items']]
 
                 anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
                 anchor_playlists = []
-
                 for playlist, word in anchor_words[:]:
                     try:
                         anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
@@ -89,16 +94,22 @@ def home():
                         print(f"Error with one of the {word} playlists. Error: {e}")
                         anchor_words.remove((playlist, word))
 
-                songs = [song['track'] for song in current_daylist['items']]
-
                 return render_template(template_name_or_list='index.html',
                                        daylist_info=daylist_dict,
                                        songs=songs,
                                        anchor_words=anchor_words,
                                        anchor_playlists=anchor_playlists
                                        )
-            # For POST requests
-            else:
+            except SpotifyException as e:
+                print(f'Spotify API error: {e}')
+                return "Error with Spotify's API"
+            except Exception as e:
+                print(f'Unexpected error occured: {e}')
+                return 'An error occurred while processing your request'
+
+        # For POST requests
+        else:
+            try:
                 songs_per_mood = 10
                 seed_playlists = request.form.getlist('selected_assets')
                 seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
@@ -130,6 +141,18 @@ def home():
                                        daylist_info=daylist_dict,
                                        new_playlist=new_playlist,
                                        new_playlist_name=new_playlist_name)
+            except SpotifyException as e:
+                print(f"Spotify API error during playlist creation: {e}")
+                return 'Spotify API error during playlist creation'
+            except Exception as e:
+                print(f"Unexpected error occurred during POST request: {e}")
+                return 'An error occurred while processing your request'
+    except SpotifyException as e:
+        print(f"Spotify API error: {e}")
+        return 'Spotify API error'
+    except Exception as e:
+        print(f"Unexpected error occurred: {e}")
+        return 'An error occurred while processing your request'
 
 
 # @app.route('/play', methods=['POST'])
