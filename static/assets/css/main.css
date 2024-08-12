@@ -1748,6 +1748,12 @@ input, select, textarea {
         background-size: 350%;
     }
     table td {
-        padding: 0px 5px;
+        padding: 0px;
+    }
+    li.song{
+        padding-right: 5px;
+    }
+    img.album-img {
+        padding-bottom: 10px;
     }
 }
