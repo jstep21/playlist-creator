@@ -33,9 +33,10 @@ From here, the user is able to click on any song and hear it play through their 
 have it set up (more details below and in comments in <code>main.py</code>). 
 
 Going back to the main page, when the user clicks the "generate playlist" button, they are presented with a dropdown 
-menu to select from the different vibey key-words. The new playlist that gets generated will be from the 'mix' playlists
-associated with them, and the name of the playlist will be generated from them. Using the example above, the new 
-playlist could be "Lounge Thursdays for Balearic Beat Mornings Featuring Chill Vibes"
+menu to select from the different vibey key-words. The new playlist that gets generated will be based on the user's 
+selections as well as the songs in the daylist. The name of the playlist will be created using what key-words the 
+user selects too. Using the example above, the new playlist could be "Lounge Thursdays for Balearic Beat Mornings 
+Featuring Chill Vibes"
 
 ## Prerequisites
 <ul>

@@ -91,7 +91,7 @@ def home():
                     try:
                         anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
                     except SpotifyException as e:
-                        print(f"Error with one of the {word} playlists. Error: {e}")
+                        print(f"Error with the {word} mix playlist. Error: {e}")
                         anchor_words.remove((playlist, word))
 
                 return render_template(template_name_or_list='index.html',
@@ -198,19 +198,6 @@ def get_token():
         return None
 
     return token_info
-
-    # token_info = session.get(TOKEN_INFO, None)
-    # if not token_info:
-    #     print('Token not found, redirecting to login...')
-    #     return redirect(url_for('login'))
-    #
-    # token_info = create_spotify_oauth().validate_token(token_info)
-    # if not token_info:
-    #     print('Token validation failed, redirecting to login...')
-    #     return redirect(url_for('login'))
-    #
-    # session['TOKEN_INFO'] = token_info
-    # return token_info
 
 
 def get_playlist(sp, playlist_name):
