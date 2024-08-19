@@ -1,14 +1,11 @@
 import os
 import re
-from random import randrange
+from random import randrange, shuffle
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.exceptions import SpotifyException
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify
-# import logging
-#
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-# logger = logging.getLogger(__name__)
+
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
@@ -20,6 +17,9 @@ SCOPE = ('user-library-read playlist-modify-public playlist-modify-private strea
          'user-read-playback-state user-modify-playback-state')
 
 TOKEN_INFO = 'token_info'
+
+DAYS_OF_THE_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+TIME_OF_DAYS = ['morning', 'afternoon', 'evening', 'night', 'early', 'late']
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -118,7 +118,6 @@ def home():
                 chosen_moods = [word for href, word in seed_playlists]
 
                 new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
-                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
 
                 sp.user_playlist_create(
                     user=sp.current_user()['id'],
@@ -127,8 +126,10 @@ def home():
                     collaborative=False,
                     description="randomly generated using daylist mixes and spotify's api"
                 )
-
                 new_playlist_dict = get_playlist(sp, new_playlist_name)
+
+                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+                shuffle(new_playlist)
                 song_uris = [song['track']['uri'] for song in new_playlist]
 
                 sp.playlist_add_items(
@@ -247,10 +248,23 @@ def generate_playlist_name(chosen_moods, daylist_dict):
         chosen_moods.remove(chosen_moods[rand_index])
 
     name_split = daylist_dict['name'].split()
-    time_of_day = name_split[len(name_split) - 1]
-    day_of_week = name_split[len(name_split) - 2]
 
-    return (f'{new_playlist_words[0]} {day_of_week}s for {new_playlist_words[1]} {time_of_day}s featuring'
+    day_of_week = ''
+    time_of_day = []
+    full_time_of_day = ''
+
+    for word in name_split:
+        if word in DAYS_OF_THE_WEEK:
+            day_of_week = word
+        if word in TIME_OF_DAYS:
+            time_of_day.append(word)
+
+    if len(time_of_day) == 2:
+        full_time_of_day = time_of_day[0] + time_of_day[1]
+    elif time_of_day:
+        full_time_of_day = time_of_day[0]
+
+    return (f'{new_playlist_words[0]} {day_of_week}s for {new_playlist_words[1]} {full_time_of_day}s featuring'
             f' {new_playlist_words[2]} vibes')
 
 
