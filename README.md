@@ -4,8 +4,8 @@
 
 http://jstep21.pythonanywhere.com/
 
-The app is still in "development mode," so please email me your name and email address if you wish to try it 
-out!
+The app is still in "development mode" and new users need to be added to an "allowlist," so please email me your name 
+and email address if you wish to try it out!
 
 Email: jstephens1215@gmail.com  
 
