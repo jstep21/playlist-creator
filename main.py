@@ -79,75 +79,75 @@ def home():
             # devices = sp.devices()
             # print(devices)
 
-            try:
-                daylist_id = daylist_dict['id']
+            # try:
+            daylist_id = daylist_dict['id']
 
-                current_daylist = sp.playlist_items(daylist_id)
-                songs = [song['track'] for song in current_daylist['items']]
+            current_daylist = sp.playlist_items(daylist_id)
+            songs = [song['track'] for song in current_daylist['items']]
 
-                anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-                anchor_playlists = []
-                for playlist, word in anchor_words[:]:
-                    try:
-                        anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
-                    except SpotifyException as e:
-                        print(f"Error with the {word} mix playlist. Error: {e}")
-                        anchor_words.remove((playlist, word))
+            anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
+            anchor_playlists = []
+            for playlist, word in anchor_words[:]:
+                try:
+                    anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+                except SpotifyException as e:
+                    print(f"Error with the {word} mix playlist. Error: {e}")
+                    anchor_words.remove((playlist, word))
 
-                return render_template(template_name_or_list='index.html',
-                                       daylist_info=daylist_dict,
-                                       songs=songs,
-                                       anchor_words=anchor_words,
-                                       anchor_playlists=anchor_playlists
-                                       )
-            except SpotifyException as e:
-                print(f'Spotify API error: {e}')
-                return "Error with Spotify's API"
-            except Exception as e:
-                print(f'Unexpected error occured: {e}')
-                return 'An error occurred while processing your request'
+            return render_template(template_name_or_list='index.html',
+                                   daylist_info=daylist_dict,
+                                   songs=songs,
+                                   anchor_words=anchor_words,
+                                   anchor_playlists=anchor_playlists
+                                   )
+            # except SpotifyException as e:
+            #     print(f'Spotify API error: {e}')
+            #     return "Error with Spotify's API"
+            # except Exception as e:
+            #     print(f'Unexpected error occured: {e}')
+            #     return 'An error occurred while processing your request'
 
         # For POST requests
         else:
-            try:
-                songs_per_mood = 10
-                seed_playlists = request.form.getlist('selected_assets')
-                seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
+            # try:
+            songs_per_mood = 10
+            seed_playlists = request.form.getlist('selected_assets')
+            seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
-                hrefs = [href for href, word in seed_playlists]
-                chosen_moods = [word for href, word in seed_playlists]
+            hrefs = [href for href, word in seed_playlists]
+            chosen_moods = [word for href, word in seed_playlists]
 
-                new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
+            new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
 
-                sp.user_playlist_create(
-                    user=sp.current_user()['id'],
-                    name=new_playlist_name,
-                    public=False,
-                    collaborative=False,
-                    description="randomly generated using daylist mixes and spotify's api"
-                )
-                new_playlist_dict = get_playlist(sp, new_playlist_name)
+            sp.user_playlist_create(
+                user=sp.current_user()['id'],
+                name=new_playlist_name,
+                public=False,
+                collaborative=False,
+                description="randomly generated using daylist mixes and spotify's api"
+            )
+            new_playlist_dict = get_playlist(sp, new_playlist_name)
 
-                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
-                shuffle(new_playlist)
-                song_uris = [song['track']['uri'] for song in new_playlist]
+            new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+            shuffle(new_playlist)
+            song_uris = [song['track']['uri'] for song in new_playlist]
 
-                sp.playlist_add_items(
-                    playlist_id=new_playlist_dict['id'],
-                    items=song_uris,
-                    position=None
-                )
+            sp.playlist_add_items(
+                playlist_id=new_playlist_dict['id'],
+                items=song_uris,
+                position=None
+            )
 
-                return render_template('index.html',
-                                       daylist_info=daylist_dict,
-                                       new_playlist=new_playlist,
-                                       new_playlist_name=new_playlist_name)
-            except SpotifyException as e:
-                print(f"Spotify API error during playlist creation: {e}")
-                return 'Spotify API error during playlist creation'
-            except Exception as e:
-                print(f"Unexpected error occurred during POST request: {e}")
-                return 'An error occurred while processing your request'
+            return render_template('index.html',
+                                   daylist_info=daylist_dict,
+                                   new_playlist=new_playlist,
+                                   new_playlist_name=new_playlist_name)
+            # except SpotifyException as e:
+            #     print(f"Spotify API error during playlist creation: {e}")
+            #     return 'Spotify API error during playlist creation'
+            # except Exception as e:
+            #     print(f"Unexpected error occurred during POST request: {e}")
+            #     return 'An error occurred while processing your request'
     except SpotifyException as e:
         print(f"Spotify API error: {e}")
         return 'Spotify API error'
