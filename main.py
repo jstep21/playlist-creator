@@ -4,7 +4,7 @@ from random import randrange, shuffle
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.exceptions import SpotifyException
-from flask import Flask, request, render_template, url_for, session, redirect, jsonify
+from flask import Flask, request, render_template, url_for, session, redirect, jsonify, flash
 
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
@@ -242,6 +242,10 @@ def get_playlist(sp, playlist_name):
 def generate_playlist_name(chosen_moods, daylist_dict):
     """Create a name for the new playlist from the chosen moods"""
     new_playlist_words = []
+    if len(chosen_moods) < 3:
+        flash('Please enter a minimum of 3 moods')
+        redirect(url_for('home'))
+
     for i in range(3):
         rand_index = randrange(len(chosen_moods))
         new_playlist_words.append(chosen_moods[rand_index])
