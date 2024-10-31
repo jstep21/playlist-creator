@@ -10,6 +10,7 @@
 		<title>Playlist Creator</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
 		<style>
 
 			#bg:after {
@@ -76,9 +77,10 @@
 					}
 				});
 			}
-
-
 		</script>
+		<!-- SweetAlerts CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 		<link rel="stylesheet" href="static/assets/css/main.css" />
 
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"/>
@@ -234,6 +236,15 @@
 							<article id="generate">
 								<h3 class="major">Generate Playlist</h3>
 								<div class="container mt-5">
+									{% with messages = get_flashed_messages() %}
+										{% if messages %}
+											<ul>
+												{% for message in messages %}
+													<li>{{ message }}</li>
+												{% endfor %}
+											</ul>
+										{% endif %}
+									{% endwith %}
 									<form method="post" action="#show-new-playlist">
 										<div class="input-group mb-3 rounded">
 										  <label>Please select at least 3</label>
@@ -253,6 +264,7 @@
 										  {% endfor %}
 										  </ul>
 										</div>
+
 										<ul class="actions">
 											<li>
 												<input type="submit" value="Create Playlist" class="primary" />
@@ -572,6 +584,24 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 		    <script>
 				var homeUrl = "{{ url_for('home') }}";
 			</script>
+
+
+			{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+					<script>
+						document.addEventListener("DOMContentLoaded", function() {
+							{% for category, message in messages %}
+								Swal.fire({
+									icon: "{{ 'success' if category == 'success' else 'error' }}",
+									title: '{{ message }}',
+									showConfirmButton: true
+								});
+							{% endfor %}
+						});
+					</script>
+				{% endif %}
+			{% endwith %}
+
 
 		<!-- Scripts -->
 			<script

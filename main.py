@@ -37,8 +37,7 @@ def login():
 @app.route('/redirect')
 def redirect_page():
     session.clear()
-    code = request.args.get('code')
-    token_info = create_spotify_oauth().get_access_token(code)
+    token_info = create_spotify_oauth().get_cached_token()
 
     if token_info:
         session[TOKEN_INFO] = token_info
@@ -74,16 +73,13 @@ def home():
 
         if request.method == 'GET':
 
-            # UNCOMMENT CODE BELOW TO SEE YOUR AVAILABLE AUDIO DEVICES FOR PLAYBACK
-            # ADD THE DEVICE ID TO A "DEVICE_ID" ENVIRONMENT VARIABLE
-            # devices = sp.devices()
-            # print(devices)
-
             # try:
             daylist_id = daylist_dict['id']
 
             current_daylist = sp.playlist_items(daylist_id)
             songs = [song['track'] for song in current_daylist['items']]
+
+            devices = sp.devices()
 
             anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
             anchor_playlists = []
@@ -98,56 +94,53 @@ def home():
                                    daylist_info=daylist_dict,
                                    songs=songs,
                                    anchor_words=anchor_words,
-                                   anchor_playlists=anchor_playlists
+                                   anchor_playlists=anchor_playlists,
+                                   devices=devices
                                    )
-            # except SpotifyException as e:
-            #     print(f'Spotify API error: {e}')
-            #     return "Error with Spotify's API"
-            # except Exception as e:
-            #     print(f'Unexpected error occured: {e}')
-            #     return 'An error occurred while processing your request'
 
         # For POST requests
         else:
-            # try:
             songs_per_mood = 10
             seed_playlists = request.form.getlist('selected_assets')
             seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
-            hrefs = [href for href, word in seed_playlists]
-            chosen_moods = [word for href, word in seed_playlists]
+            if len(seed_playlists) < 3:
+                flash('Please enter at least 3 mood tags', 'error')
+                redirect(url_for('home'))
+            else:
 
-            new_playlist_name = generate_playlist_name(chosen_moods, daylist_dict)
+                hrefs = [href for href, word in seed_playlists]
+                chosen_moods = [word for href, word in seed_playlists]
 
-            sp.user_playlist_create(
-                user=sp.current_user()['id'],
-                name=new_playlist_name,
-                public=False,
-                collaborative=False,
-                description="randomly generated using daylist mixes and spotify's api"
-            )
-            new_playlist_dict = get_playlist(sp, new_playlist_name)
+                new_playlist_name_desc = generate_playlist_name(chosen_moods, daylist_dict)
 
-            new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
-            shuffle(new_playlist)
-            song_uris = [song['track']['uri'] for song in new_playlist]
+                sp.user_playlist_create(
+                    user=sp.current_user()['id'],
+                    name=new_playlist_name_desc['name'],
+                    public=False,
+                    collaborative=False,
+                    description=new_playlist_name_desc['description']
+                )
+                new_playlist_dict = get_playlist(sp, new_playlist_name_desc['name'])
 
-            sp.playlist_add_items(
-                playlist_id=new_playlist_dict['id'],
-                items=song_uris,
-                position=None
-            )
+                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+                shuffle(new_playlist)
+                song_uris = [song['track']['uri'] for song in new_playlist]
 
-            return render_template('index.html',
-                                   daylist_info=daylist_dict,
-                                   new_playlist=new_playlist,
-                                   new_playlist_name=new_playlist_name)
-            # except SpotifyException as e:
-            #     print(f"Spotify API error during playlist creation: {e}")
-            #     return 'Spotify API error during playlist creation'
-            # except Exception as e:
-            #     print(f"Unexpected error occurred during POST request: {e}")
-            #     return 'An error occurred while processing your request'
+                sp.playlist_add_items(
+                    playlist_id=new_playlist_dict['id'],
+                    items=song_uris,
+                    position=None
+                )
+
+                # flash('Playlist created successfully!', 'success')
+
+                return render_template('index.html',
+                                       daylist_info=daylist_dict,
+                                       new_playlist=new_playlist,
+                                       new_playlist_name=new_playlist_name_desc['name'],
+                                       new_playlist_desc=new_playlist_name_desc['description'])
+
     except SpotifyException as e:
         print(f"Spotify API error: {e}")
         return 'Spotify API error'
@@ -242,10 +235,7 @@ def get_playlist(sp, playlist_name):
 def generate_playlist_name(chosen_moods, daylist_dict):
     """Create a name for the new playlist from the chosen moods"""
     new_playlist_words = []
-    if len(chosen_moods) < 3:
-        flash('Please enter a minimum of 3 moods')
-        redirect(url_for('home'))
-
+ 
     for i in range(3):
         rand_index = randrange(len(chosen_moods))
         new_playlist_words.append(chosen_moods[rand_index])
@@ -268,8 +258,14 @@ def generate_playlist_name(chosen_moods, daylist_dict):
     elif time_of_day:
         full_time_of_day = time_of_day[0]
 
-    return (f'{new_playlist_words[0]} {day_of_week}s for {new_playlist_words[1]} {full_time_of_day}s featuring'
-            f' {new_playlist_words[2]} vibes')
+    playlist_name_desc_dict = {
+        'name': f'{day_of_week} {full_time_of_day} vibes: {new_playlist_words[0]}, {new_playlist_words[1]} and '
+                f'{new_playlist_words[2]}',
+        'description': f'let your {full_time_of_day} flow with these {new_playlist_words[1]} rhythms. this playlist '
+                       f'combines a smooth blend of {new_playlist_words[2]} and {new_playlist_words[0]}'
+    }
+
+    return playlist_name_desc_dict
 
 
 def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
@@ -307,6 +303,11 @@ def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
                     successful = False
 
     return new_playlist
+
+
+def get_users_audio_devices(sp):
+    devices = sp.devices()
+    return devices
 
 
 if __name__ == "__main__":
