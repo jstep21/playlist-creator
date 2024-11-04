@@ -1760,3 +1760,7 @@ input, select, textarea {
         padding: 3rem 0.5rem 0.5rem 0.5rem
     }
 }
+
+#btn-profile-dashboard {
+    font-size: 12px;
+}

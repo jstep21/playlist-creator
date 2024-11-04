@@ -113,11 +113,19 @@
 							<div class="inner">
 								<h1>{{ daylist_info.name }}</h1>
 								<p>{{ daylist_info.description | safe }}</p>
+								<button id="btn-profile-dashboard">
+									<a href="#show-profile-dashboard" >PROFILE DASHBOARD</a>
+								</button>
+<!--								<form method="get" action="#show-profile-dashboard">-->
+<!--									<ul class="actions">-->
+<!--										<li><a href="#generate" class="button ">Create Playlist</a></li>-->
+<!--									</ul>-->
+<!--								</form>-->
 							</div>
 						</div>
 						<nav>
 							<ul>
-								<li class="show-playlist"><a href="#show-daylist">Show daylist</a></li>
+								<li class="show-playlist"><a href="#show-daylist">daylist</a></li>
 								{% for href, word in anchor_words|unique %}
 								<li class="show-playlist"><a href="#playlist-{{ loop.index }}">{{ word }}</a></li>
 								{% endfor %}
@@ -132,7 +140,7 @@
 
 				<!-- Main -->
 					<div id="main">
-						<!-- Intro -->
+						<!-- Show daylist and seed playlists -->
 							<article id="show-daylist">
 								<h2 class="major">{{ daylist_name }}</h2>
 								<table class="table-wrapper">
@@ -325,6 +333,11 @@
 									</tbody>
 								</table>
 								{% endif %}
+							</article>
+
+						<!-- Profile Dashboard -->
+							<article id="show-profile-dashboard">
+								<h1>dashboard</h1>
 							</article>
 
 						<!-- Elements -->
