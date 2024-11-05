@@ -37,7 +37,7 @@ def login():
 @app.route('/redirect')
 def redirect_page():
     session.clear()
-    token_info = create_spotify_oauth().get_cached_token()
+    token_info = create_spotify_oauth().get_access_token()
 
     if token_info:
         session[TOKEN_INFO] = token_info
