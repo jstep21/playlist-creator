@@ -172,7 +172,8 @@ def create_spotify_oauth():
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE
+        scope=SCOPE,
+        cache_path=None
     )
 
 
