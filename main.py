@@ -4,6 +4,7 @@ from random import randrange, shuffle
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.exceptions import SpotifyException
+from spotipy.cache_handler import CacheHandler
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify, flash
 
 
@@ -37,11 +38,16 @@ def login():
 @app.route('/redirect')
 def redirect_page():
     session.clear()
-    token_info = create_spotify_oauth().get_access_token()
+    code = request.args.get('code')
 
-    if token_info:
-        session[TOKEN_INFO] = token_info
-        return redirect(url_for('home'))
+    if code:
+        try:
+            token_info = create_spotify_oauth().get_access_token(code, check_cache=False)
+            session[TOKEN_INFO] = token_info
+            return redirect(url_for('home'))
+        except Exception as e:
+            print(f"Error retrieving access token: {e}")
+            return 'Error retrieving access token', 500
     else:
         print('Error retrieving access token')
         return 'Error retrieving access token', 500
@@ -173,7 +179,7 @@ def create_spotify_oauth():
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
-        cache_path=None
+        cache_handler=SessionCacheHandler(TOKEN_INFO)
     )
 
 
@@ -309,6 +315,20 @@ def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
 def get_users_audio_devices(sp):
     devices = sp.devices()
     return devices
+
+
+class SessionCacheHandler(CacheHandler):
+    def __init__(self, session_key):
+        self.session_key = session_key
+
+    def get_cached_token(self):
+        return session.get(self.session_key)
+
+    def save_token_to_cache(self, token_info):
+        session[self.session_key] = token_info
+
+    def delete_cached_token(self):
+        session.pop(self.session_key, None)
 
 
 if __name__ == "__main__":
