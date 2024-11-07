@@ -14,8 +14,11 @@ SPOTIPY_REDIRECT_URI = os.environ.get("SPOTIPY_REDIRECT_URI")
 
 # DEVICE_ID = os.environ.get("DEVICE_ID")
 DAYLIST = 'daylist'
-SCOPE = ('user-library-read playlist-modify-public playlist-modify-private streaming playlist-read-private '
-         'user-read-playback-state user-modify-playback-state')
+SCOPE = ('streaming user-read-email user-library-read user-read-private playlist-modify-public '
+         'playlist-modify-private playlist-read-private user-read-playback-state user-modify-playback-state '
+         'user-top-read user-read-recently-played')
+
+# SCOPE = 'streaming user-read-email user-read-private'
 
 TOKEN_INFO = 'token_info'
 
@@ -71,88 +74,91 @@ def home():
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
 
-    try:
-        daylist_dict = get_playlist(sp, 'daylist')
-        if not daylist_dict:
-            print('Daylist not found')
-            return 'Daylist not found'
+    # try:
+    daylist_dict = get_playlist(sp, 'daylist')
+    if not daylist_dict:
+        print('Daylist not found')
+        return 'Daylist not found'
+    # except SpotifyException as e:
+    #     print(f'Daylist not found: {e}')
 
-        if request.method == 'GET':
+    if request.method == 'GET':
 
-            # try:
-            daylist_id = daylist_dict['id']
+        daylist_id = daylist_dict['id']
 
-            current_daylist = sp.playlist_items(daylist_id)
-            songs = [song['track'] for song in current_daylist['items']]
+        current_daylist = sp.playlist_items(daylist_id)
+        songs = [song['track'] for song in current_daylist['items']]
 
-            devices = sp.devices()
+        top_artists = sp.current_user_top_artists(time_range="medium_term")
 
-            anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
-            anchor_playlists = []
-            for playlist, word in anchor_words[:]:
-                try:
-                    anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
-                except SpotifyException as e:
-                    print(f"Error with the {word} mix playlist. Error: {e}")
-                    anchor_words.remove((playlist, word))
+        # devices = sp.devices()
 
-            return render_template(template_name_or_list='index.html',
-                                   daylist_info=daylist_dict,
-                                   songs=songs,
-                                   anchor_words=anchor_words,
-                                   anchor_playlists=anchor_playlists,
-                                   devices=devices
-                                   )
+        anchor_words = re.findall(r'<a href="([^"]*)">([^<]*)</a>', daylist_dict['description'])
+        anchor_playlists = []
+        for playlist, word in anchor_words[:]:
+            try:
+                anchor_playlists.append(sp.playlist_items(playlist.split(':')[2]))
+            except SpotifyException as e:
+                print(f"Error with the {word} mix playlist. Error: {e}")
+                anchor_words.remove((playlist, word))
 
-        # For POST requests
+        return render_template(template_name_or_list='index.html',
+                               daylist_info=daylist_dict,
+                               songs=songs,
+                               anchor_words=anchor_words,
+                               anchor_playlists=anchor_playlists,
+                               top_artists=top_artists
+                               )
+
+    # For POST requests
+    else:
+        songs_per_mood = 10
+        seed_playlists = request.form.getlist('selected_assets')
+        seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
+
+        if len(seed_playlists) < 3:
+            flash('Please enter at least 3 mood tags', 'error')
+            redirect(url_for('home'))
         else:
-            songs_per_mood = 10
-            seed_playlists = request.form.getlist('selected_assets')
-            seed_playlists = [tuple(item.split('|')) for item in seed_playlists]
 
-            if len(seed_playlists) < 3:
-                flash('Please enter at least 3 mood tags', 'error')
-                redirect(url_for('home'))
-            else:
+            hrefs = [href for href, word in seed_playlists]
+            chosen_moods = [word for href, word in seed_playlists]
 
-                hrefs = [href for href, word in seed_playlists]
-                chosen_moods = [word for href, word in seed_playlists]
+            new_playlist_name_desc = generate_playlist_name(chosen_moods, daylist_dict)
 
-                new_playlist_name_desc = generate_playlist_name(chosen_moods, daylist_dict)
+            sp.user_playlist_create(
+                user=sp.current_user()['id'],
+                name=new_playlist_name_desc['name'],
+                public=False,
+                collaborative=False,
+                description=new_playlist_name_desc['description']
+            )
+            new_playlist_dict = get_playlist(sp, new_playlist_name_desc['name'])
 
-                sp.user_playlist_create(
-                    user=sp.current_user()['id'],
-                    name=new_playlist_name_desc['name'],
-                    public=False,
-                    collaborative=False,
-                    description=new_playlist_name_desc['description']
-                )
-                new_playlist_dict = get_playlist(sp, new_playlist_name_desc['name'])
+            new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
+            shuffle(new_playlist)
+            song_uris = [song['track']['uri'] for song in new_playlist]
 
-                new_playlist = generate_playlist(sp, daylist_dict, hrefs, songs_per_mood)
-                shuffle(new_playlist)
-                song_uris = [song['track']['uri'] for song in new_playlist]
+            sp.playlist_add_items(
+                playlist_id=new_playlist_dict['id'],
+                items=song_uris,
+                position=None
+            )
 
-                sp.playlist_add_items(
-                    playlist_id=new_playlist_dict['id'],
-                    items=song_uris,
-                    position=None
-                )
+            # flash('Playlist created successfully!', 'success')
 
-                # flash('Playlist created successfully!', 'success')
-
-                return render_template('index.html',
-                                       daylist_info=daylist_dict,
-                                       new_playlist=new_playlist,
-                                       new_playlist_name=new_playlist_name_desc['name'],
-                                       new_playlist_desc=new_playlist_name_desc['description'])
-
-    except SpotifyException as e:
-        print(f"Spotify API error: {e}")
-        return 'Spotify API error'
-    except Exception as e:
-        print(f"Unexpected error occurred: {e}")
-        return 'An error occurred while processing your request'
+            return render_template('index.html',
+                                   daylist_info=daylist_dict,
+                                   new_playlist=new_playlist,
+                                   new_playlist_name=new_playlist_name_desc['name'],
+                                   new_playlist_desc=new_playlist_name_desc['description'])
+    #
+    # except SpotifyException as e:
+    #     print(f"Spotify API error: {e}")
+    #     return 'Spotify API error'
+    # except Exception as e:
+    #     print(f"Unexpected error occurred: {e}")
+    #     return 'An error occurred while processing your request'
 
 
 # @app.route('/play', methods=['POST'])

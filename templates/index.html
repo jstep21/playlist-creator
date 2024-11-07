@@ -39,6 +39,7 @@
 			li.song:hover {
 				color: darkGray;
 			}
+
 		</style>
 		<script>
 			function playSong(songUri) {
@@ -336,8 +337,20 @@
 							</article>
 
 						<!-- Profile Dashboard -->
-							<article id="show-profile-dashboard">
+							<article id="show-profile-dashboard" style="width:80rem;">
 								<h1>dashboard</h1>
+								<div>
+									<ul class="alt">
+									{% for artist in top_artists['items'] %}
+										<li>
+											<span><img src="{{ artist['images'][2]['url'] }}" style="width:64px;"></span>
+											{{ artist.name }}
+											{{ artist.popularity }}
+										</li>
+									{% endfor %}
+									</ul>
+								</div>
+
 							</article>
 
 						<!-- Elements -->

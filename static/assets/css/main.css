@@ -1697,8 +1697,13 @@ input, select, textarea {
 			opacity: 0;
 		}
 
+#btn-profile-dashboard {
+    font-size: 12px;
+}
 
-
+#main article #show-profile-dashboard {
+    width: 80rem;
+}
 
 
 @media screen and (min-width: 1361px){
@@ -1761,6 +1766,4 @@ input, select, textarea {
     }
 }
 
-#btn-profile-dashboard {
-    font-size: 12px;
-}
+
