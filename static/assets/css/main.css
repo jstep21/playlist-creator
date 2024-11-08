@@ -1705,6 +1705,44 @@ input, select, textarea {
     width: 80rem;
 }
 
+#artist-image {
+    border-radius: 50%;
+    width: 64px;
+}
+
+#profile-dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(12fr, 1fr);
+    gap: 1rem;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.col-1 { grid-column: span 1; }
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+
+
+.bar-container {
+  width: 50%; /* Full width for the container */
+  height: 30px; /* Height of the bar */
+  background-color: #536878; /* Light grey background */
+  border: 1px solid #ccc; /* Optional border */
+  border-radius: 5px; /* Rounded corners */
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.bar {
+  height: 100%; /* Make the bar fill the container's height */
+  background-color: #76c7c0; /* Greenish bar color */
+  text-align: center; /* Optional: center text inside the bar */
+  color: white; /* Optional: text color */
+  line-height: 30px; /* Vertically center text */
+  font-weight: bold; /* Make text bold */
+  transition: width 0.3s ease; /* Smooth transition for changes */
+}
+
 
 @media screen and (min-width: 1361px){
     #header nav ul li a {

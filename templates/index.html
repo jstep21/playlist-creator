@@ -114,14 +114,16 @@
 							<div class="inner">
 								<h1>{{ daylist_info.name }}</h1>
 								<p>{{ daylist_info.description | safe }}</p>
-								<button id="btn-profile-dashboard">
-									<a href="#show-profile-dashboard" >PROFILE DASHBOARD</a>
-								</button>
 <!--								<form method="get" action="#show-profile-dashboard">-->
 <!--									<ul class="actions">-->
 <!--										<li><a href="#generate" class="button ">Create Playlist</a></li>-->
 <!--									</ul>-->
 <!--								</form>-->
+								<ul class="actions" style="display:flex; justify-content:center;">
+									<li><a href="#show-profile-dashboard" class="button primary"
+										   id="btn-profile-dashboard">
+										Profile Dashboard</a></li>
+								</ul>
 							</div>
 						</div>
 						<nav>
@@ -338,18 +340,87 @@
 
 						<!-- Profile Dashboard -->
 							<article id="show-profile-dashboard" style="width:80rem;">
-								<h1>dashboard</h1>
-								<div>
-									<ul class="alt">
-									{% for artist in top_artists['items'] %}
-										<li>
-											<span><img src="{{ artist['images'][2]['url'] }}" style="width:64px;"></span>
-											{{ artist.name }}
-											{{ artist.popularity }}
-										</li>
-									{% endfor %}
-									</ul>
+								<div id="profile-dashboard-container" class="container">
+									<div class="row">
+										<div class="col-12 text-center">
+											<h1>{{ current_user['display_name'] }}'s Dashboard</h1>
+											<h4>{{ current_user['product'] }} user</h4>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-4" id="top-artists">
+											<h3>Favorite Artists</h3>
+											<ul class="alt overflow-auto" style="max-height: 500px;">
+											{% for artist in top_artists['items'] %}
+												<li>
+													<span><img id="artist-image" src="{{ artist['images'][2]['url'] }}"
+														></span>
+													{{ artist.name }}
+													<div class="bar-container">
+													  <div class="bar" style="width: {{ artist['popularity'] }}%;"></div>
+													</div>
+												</li>
+											{% endfor %}
+											</ul>
+										</div>
+										<div class="col-2"></div>
+										<div class="col-6" id="recently-played">
+											<section>
+												<h3 class="major">Recently Played</h3>
+												<div class="table-wrapper overflow-auto" style="max-height: 500px;">
+													<table>
+														<thead>
+															<tr>
+																<th> </th>
+																<th>Album</th>
+																<th>Track Name</th>
+																<th>Artist</th>
+															</tr>
+														</thead>
+														<tbody>
+														{% for item in recently_played['items'] %}
+															<tr>
+																<td>
+																	<img
+																		src="{{ item['track']['album']['images'][2]['url'] }}"
+																	/>
+																</td>
+																<td>{{ item['track']['album']['name'] }}</td>
+																<td>{{ item['track']['name'] }}</td>
+																<td>
+																	{% if item['track']['artists']|length > 1 %}
+																		{% for artist in item['track']['artists'] %}
+																			{% if loop.index ==
+																	item['track']['artists']|length %}
+																				{{ artist.name }}
+																			{% else %}
+																				{{ artist.name }},
+																			{% endif %}
+																		{% endfor %}
+																	{% else %}
+																		{{ item['track']['artists'][0]['name'] }}
+																	{% endif %}
+																</td>
+															</tr>
+														{% endfor %}
+														</tbody>
+														<tfoot>
+															<tr>
+																<td colspan="2"></td>
+																<td></td>
+															</tr>
+														</tfoot>
+													</table>
+												</div>
+											</section>
+										</div>
+
+									</div>
+									<div>
+
+									</div>
 								</div>
+
 
 							</article>
 

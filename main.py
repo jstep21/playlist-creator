@@ -8,6 +8,20 @@ from spotipy.cache_handler import CacheHandler
 from flask import Flask, request, render_template, url_for, session, redirect, jsonify, flash
 
 
+class SessionCacheHandler(CacheHandler):
+    def __init__(self, session_key):
+        self.session_key = session_key
+
+    def get_cached_token(self):
+        return session.get(self.session_key)
+
+    def save_token_to_cache(self, token_info):
+        session[self.session_key] = token_info
+
+    def delete_cached_token(self):
+        session.pop(self.session_key, None)
+
+
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.environ.get("SPOTIPY_REDIRECT_URI")
@@ -23,7 +37,7 @@ SCOPE = ('streaming user-read-email user-library-read user-read-private playlist
 TOKEN_INFO = 'token_info'
 
 DAYS_OF_THE_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-TIME_OF_DAYS = ['morning', 'afternoon', 'evening', 'night', 'early', 'late']
+TIMES_OF_DAY = ['morning', 'afternoon', 'evening', 'night', 'early', 'late']
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -74,13 +88,10 @@ def home():
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
 
-    # try:
     daylist_dict = get_playlist(sp, 'daylist')
     if not daylist_dict:
         print('Daylist not found')
         return 'Daylist not found'
-    # except SpotifyException as e:
-    #     print(f'Daylist not found: {e}')
 
     if request.method == 'GET':
 
@@ -89,7 +100,10 @@ def home():
         current_daylist = sp.playlist_items(daylist_id)
         songs = [song['track'] for song in current_daylist['items']]
 
+        current_user = sp.current_user()
         top_artists = sp.current_user_top_artists(time_range="medium_term")
+        top_songs = sp.current_user_top_tracks()
+        recently_played = sp.current_user_recently_played()
 
         # devices = sp.devices()
 
@@ -107,7 +121,10 @@ def home():
                                songs=songs,
                                anchor_words=anchor_words,
                                anchor_playlists=anchor_playlists,
-                               top_artists=top_artists
+                               current_user=current_user,
+                               top_songs=top_songs,
+                               top_artists=top_artists,
+                               recently_played=recently_played
                                )
 
     # For POST requests
@@ -120,6 +137,8 @@ def home():
             flash('Please enter at least 3 mood tags', 'error')
             redirect(url_for('home'))
         else:
+
+            top_artists = sp.current_user_top_artists(time_range="medium_term")
 
             hrefs = [href for href, word in seed_playlists]
             chosen_moods = [word for href, word in seed_playlists]
@@ -151,14 +170,8 @@ def home():
                                    daylist_info=daylist_dict,
                                    new_playlist=new_playlist,
                                    new_playlist_name=new_playlist_name_desc['name'],
-                                   new_playlist_desc=new_playlist_name_desc['description'])
-    #
-    # except SpotifyException as e:
-    #     print(f"Spotify API error: {e}")
-    #     return 'Spotify API error'
-    # except Exception as e:
-    #     print(f"Unexpected error occurred: {e}")
-    #     return 'An error occurred while processing your request'
+                                   new_playlist_desc=new_playlist_name_desc['description'],
+                                   top_artists=top_artists)
 
 
 # @app.route('/play', methods=['POST'])
@@ -263,7 +276,7 @@ def generate_playlist_name(chosen_moods, daylist_dict):
     for word in name_split:
         if word in DAYS_OF_THE_WEEK:
             day_of_week = word
-        if word in TIME_OF_DAYS:
+        if word in TIMES_OF_DAY:
             time_of_day.append(word)
 
     if len(time_of_day) == 2:
@@ -321,20 +334,6 @@ def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
 def get_users_audio_devices(sp):
     devices = sp.devices()
     return devices
-
-
-class SessionCacheHandler(CacheHandler):
-    def __init__(self, session_key):
-        self.session_key = session_key
-
-    def get_cached_token(self):
-        return session.get(self.session_key)
-
-    def save_token_to_cache(self, token_info):
-        session[self.session_key] = token_info
-
-    def delete_cached_token(self):
-        session.pop(self.session_key, None)
 
 
 if __name__ == "__main__":
