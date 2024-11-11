@@ -93,17 +93,24 @@ def home():
         print('Daylist not found')
         return 'Daylist not found'
 
+    current_user = sp.current_user()
+    top_artists = sp.current_user_top_artists(time_range="medium_term")
+    top_songs = sp.current_user_top_tracks()
+    recently_played = sp.current_user_recently_played()
+    # current_playlists = sp.current_user_playlists(limit=10, offset=0)
+    featured_playlists = sp.featured_playlists()
+
+    print(featured_playlists)
+    # recommendation_genres = sp.recommendation_genre_seeds()
+    # recommendation = sp.recommendations(seed_tracks=['2JyGSCWeruwFHK6w57N1qG'], seed_artists=['2o5jDhtHVPhrJdv3cEQ99Z'],
+    #                                     seed_genres=['trance'], limit=20, country='US')
+
     if request.method == 'GET':
 
         daylist_id = daylist_dict['id']
 
         current_daylist = sp.playlist_items(daylist_id)
         songs = [song['track'] for song in current_daylist['items']]
-
-        current_user = sp.current_user()
-        top_artists = sp.current_user_top_artists(time_range="medium_term")
-        top_songs = sp.current_user_top_tracks()
-        recently_played = sp.current_user_recently_played()
 
         # devices = sp.devices()
 
@@ -124,7 +131,8 @@ def home():
                                current_user=current_user,
                                top_songs=top_songs,
                                top_artists=top_artists,
-                               recently_played=recently_played
+                               recently_played=recently_played,
+                               featured_playlists=featured_playlists
                                )
 
     # For POST requests
@@ -171,7 +179,10 @@ def home():
                                    new_playlist=new_playlist,
                                    new_playlist_name=new_playlist_name_desc['name'],
                                    new_playlist_desc=new_playlist_name_desc['description'],
-                                   top_artists=top_artists)
+                                   current_user=current_user,
+                                   top_songs=top_songs,
+                                   top_artists=top_artists,
+                                   recently_played=recently_played)
 
 
 # @app.route('/play', methods=['POST'])
