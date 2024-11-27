@@ -93,17 +93,19 @@ def home():
         print('Daylist not found')
         return 'Daylist not found'
 
-    current_user = sp.current_user()
-    top_artists = sp.current_user_top_artists(time_range="medium_term")
-    top_songs = sp.current_user_top_tracks()
-    recently_played = sp.current_user_recently_played()
-    # current_playlists = sp.current_user_playlists(limit=10, offset=0)
-    featured_playlists = sp.featured_playlists()
-
-    print(featured_playlists)
+    # current_user = sp.current_user()
+    # top_artists = sp.current_user_top_artists(time_range="medium_term")
+    # top_songs = sp.current_user_top_tracks()
+    # recently_played = sp.current_user_recently_played()
+    # # current_playlists = sp.current_user_playlists(limit=10, offset=0)
+    # featured_playlists = sp.featured_playlists()
+    #
+    # print(featured_playlists)
     # recommendation_genres = sp.recommendation_genre_seeds()
     # recommendation = sp.recommendations(seed_tracks=['2JyGSCWeruwFHK6w57N1qG'], seed_artists=['2o5jDhtHVPhrJdv3cEQ99Z'],
     #                                     seed_genres=['trance'], limit=20, country='US')
+
+    user_profile = get_user_profile(sp=sp)
 
     if request.method == 'GET':
 
@@ -128,11 +130,7 @@ def home():
                                songs=songs,
                                anchor_words=anchor_words,
                                anchor_playlists=anchor_playlists,
-                               current_user=current_user,
-                               top_songs=top_songs,
-                               top_artists=top_artists,
-                               recently_played=recently_played,
-                               featured_playlists=featured_playlists
+                               user_profile=user_profile
                                )
 
     # For POST requests
@@ -340,6 +338,27 @@ def generate_playlist(sp, daylist_dict, hrefs, songs_per_mood, ):
                     successful = False
 
     return new_playlist
+
+
+def get_user_profile(sp):
+    current_user = sp.current_user()
+    top_artists = sp.current_user_top_artists(time_range="medium_term")
+    top_songs = sp.current_user_top_tracks()
+    recently_played = sp.current_user_recently_played()
+    # current_playlists = sp.current_user_playlists(limit=10, offset=0)
+    featured_playlists = sp.featured_playlists()
+    new_releases = sp.new_releases()
+
+    user_profile = {
+        'user': current_user,
+        'top_artists': top_artists,
+        'top_songs': top_songs,
+        'recently_played': recently_played,
+        'featured_playlists': featured_playlists,
+        'new-releases': new_releases,
+    }
+
+    return user_profile
 
 
 def get_users_audio_devices(sp):
